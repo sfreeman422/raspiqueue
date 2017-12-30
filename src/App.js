@@ -7,10 +7,10 @@ import Chat from './Children/Chat/Chat';
 import testData from './testData';
 
 class App extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      roomId: '',
+      roomId: this.props.match.params.roomId || '',
       users: '',
       loggedInStatus: false,
       loggedInUser: '',
@@ -20,6 +20,7 @@ class App extends Component {
     };
   }
   render() {
+    console.log(this.state.roomId);
     return (
       <div className="App">
         <header className="App-header">
