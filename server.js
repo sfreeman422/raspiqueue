@@ -42,6 +42,7 @@ app.get('/', (req, res) => {
 });
 
 // Joins a room if it exists in our DB. Asks the user to create it if it does not exist.
+// This should probably be a react comonent.
 app.get('/join/:roomName', (req, res) => {
   connection.query(`SELECT * FROM rooms WHERE roomName = '${req.params.roomName}'`, (err, results) => {
     if (err) console.log(err);
@@ -55,18 +56,9 @@ app.get('/join/:roomName', (req, res) => {
 
 // Determines if we have a room that already exists with this name. If not, creates one and redirects the user to the newly created room.
 app.post('/create/:roomName', (req, res) => {
-  connection.query(`SELECT * FROM rooms WHERE roomName = '${req.params.roomName}'`, (err, results) => {
-    if (err) res.send(err);
-    else if (results.length > 0) {
-      console.log('Found a room by that name. Cannot create new');
-      res.send('Found a room by that name. Please try another name.');
-    } else if (results.length === 0) {
-      console.log(`No rooms founds. Creating room called ${req.params.roomName}`);
-      connection.query(`INSERT INTO rooms (roomName, adminUser) VALUES ('${req.params.roomName}', 'sfreeman422')`, (error) => {
-        if (err) console.log(`Error: ${error}`);
-        res.redirect(`/join/${req.params.roomName}`);
-      });
-    }
+  connection.query(`INSERT INTO rooms (roomName, adminUser) VALUES ('${req.params.roomName}', 'sfreeman422')`, (err) => {
+    if (err) console.log(`Error: ${err}`);
+    res.redirect(`/join/${req.params.roomName}`);
   });
 });
 

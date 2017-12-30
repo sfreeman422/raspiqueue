@@ -9,7 +9,7 @@
 
 .App-header {
   background-color: #222;
-  height: 150px;
+  height: 20%;
   padding: 20px;
   color: white;
 }
@@ -22,6 +22,61 @@
   font-size: large;
 }
 
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+iframe{
+  height: 100%;
+  width: 100%;
+}
+input {
+  width: 90%;
+}
+.thumbsUpButton, .thumbsDownButton {
+  font-size: 60px;
+}
+.thumbsUpButton {
+  color: green;
+}
+.thumbsDownButton {
+  color: red;
+}
+.fas {
+  color: black;
+}
+.container {
+  display: grid;
+  grid-template-columns: [left-margin] 1% [col1] 20% [col1-margin] 1% [col2] 56% [col3-margin] 1% [col3] 20% [right-margin] 1%;
+  grid-template-rows: [top-margin] 1% [content-area] 98% [bottom-margin] 1%;
+  height: 65vh;
+}
+.queue {
+  grid-column-start: col1;
+  grid-column-end: col1-margin;
+  grid-row-start: content-area;
+}
+.video-content{
+  grid-column-start: col2;
+  grid-column-end: col3-margin;
+  grid-row-start: content-area;
+}
+.chat {
+  grid-column-start: col3;
+  grid-column-end: right-margin;
+  grid-row-start: content-area;
+}
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
