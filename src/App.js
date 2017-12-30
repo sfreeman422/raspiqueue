@@ -10,7 +10,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      roomId: this.props.match.params.roomId || '',
+      roomName: this.props.match.params.roomName || '',
       users: '',
       loggedInStatus: false,
       loggedInUser: '',
@@ -19,8 +19,13 @@ class App extends Component {
       messageArr: testData.messageArr,
     };
   }
+  componentWillMount() {
+    if (this.props.match.params.roomName !== undefined) {
+      this.getRoomInfo(this.props.match.params.roomName);
+    }
+  }
   render() {
-    console.log(this.state.roomId);
+    console.log(this.state.roomName);
     return (
       <div className="App">
         <header className="App-header">

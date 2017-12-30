@@ -8,7 +8,7 @@ import registerServiceWorker from './registerServiceWorker';
 ReactDOM.render(
   <Router>
     <Switch>
-      <Route path="/join/:roomId" component={App} />
+      <Route path="/join/:roomName" component={App} />
       <Route path="/" component={App} />
     </Switch>
   </Router>
