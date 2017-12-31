@@ -50,6 +50,7 @@ app.get('/api/:roomName', (req, res) => {
       ORDER BY lastModified ASC`, (error, queueResults) => {
         if (error) console.log(error);
         returnObj.queue = queueResults;
+        // Gets our history queue.
         connection.query(`
         SELECT links.roomId, links.linkId, links.linkUrl, links.linkName
         FROM links

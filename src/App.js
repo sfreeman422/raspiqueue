@@ -17,9 +17,9 @@ class App extends Component {
       users: '',
       loggedInStatus: false,
       loggedInUser: '',
-      currentlyPlayingUrl: testData.currentlyPlayingUrl,
       queueArr: testData.queueArr,
       messageArr: testData.messageArr,
+      historyArr: [],
     };
   }
   componentWillMount() {
@@ -32,6 +32,7 @@ class App extends Component {
             this.setState({
               roomName: json.roomName,
               queueArr: json.queue,
+              historyArr: json.history,
             });
             const client = openSocket();
             // Connects us to the specific name space we are looking for.
@@ -61,9 +62,10 @@ class App extends Component {
           <div className="container">
             <Queue
               queueArr={this.state.queueArr}
+              historyArr={this.state.historyArr}
             />
             <VideoContent
-              url={this.state.currentlyPlayingUrl}
+              queueArr={this.state.queueArr}
             />
             <Chat messageArr={this.state.messageArr} />
           </div>}
