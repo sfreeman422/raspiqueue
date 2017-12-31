@@ -17,16 +17,10 @@
       You need to enable JavaScript to run this app.
     </noscript>
     <div id="root"></div>
-    <script>
-      // const socket = new WebSocket("ws://localhost:3001/");
-      // socket.onopen = () => {
-      //   socket.send('Test message');
-      //   socket.send('https://youtube.com/stuff');
-      // }
-      // socket.onmessage = (event) => {
-      //   console.log(event.data);
-      // }
-    </script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.2/js/all.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+    </script>
   </body>
 </html>

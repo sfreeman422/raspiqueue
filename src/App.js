@@ -21,7 +21,16 @@ class App extends Component {
   }
   componentWillMount() {
     if (this.props.match.params.roomName !== undefined) {
-      this.getRoomInfo(this.props.match.params.roomName);
+      fetch(`/api/${this.props.match.params.roomName}`)
+        .then((response) => {
+          return response.json();
+        }).then((json) => {
+          // This part should add additional information to state based on the SQL queries
+          // That we will make on the server.
+          this.setState({
+            roomName: json.roomName,
+          });
+        });
     }
   }
   render() {

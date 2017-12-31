@@ -9,6 +9,7 @@
     "react-dom": "^16.2.0",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.0.17",
+    "socket.io": "^2.0.4",
     "ws": "^3.3.3"
   },
   "scripts": {
@@ -23,5 +24,6 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.5.1"
-  }
+  },
+  "proxy": "http://localhost:3000"
 }
