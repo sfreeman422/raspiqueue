@@ -28,6 +28,7 @@ app.get('/', (req, res) => {
 
 // Confirms whether or not a room exists in our DB.
 app.get('/api/:roomName', (req, res) => {
+  // Gets general information about our room.
   connection.query(`SELECT * FROM rooms WHERE roomName = '${req.params.roomName}'`, (err, results) => {
     if (err) console.log(err);
     if (results.length > 0) {
@@ -38,10 +39,29 @@ app.get('/api/:roomName', (req, res) => {
         roomId: results[0].roomId,
         adminUser: results[0].adminUser,
       };
-      connection.query(`SELECT links.roomId, links.linkId, links.linkUrl, links.linkName FROM links INNER JOIN rooms ON links.roomId = rooms.roomId WHERE rooms.roomId = ${results[0].roomId}`, (error, queueResults) => {
+      // Gets our current queue.
+      connection.query(`
+      SELECT links.roomId, links.linkId, links.linkUrl, links.linkName
+      FROM links
+      INNER JOIN rooms
+      ON links.roomId = rooms.roomId
+      WHERE rooms.roomId = ${results[0].roomId}
+      && links.played = 0
+      ORDER BY lastModified ASC`, (error, queueResults) => {
         if (error) console.log(error);
         returnObj.queue = queueResults;
-        res.send(returnObj);
+        connection.query(`
+        SELECT links.roomId, links.linkId, links.linkUrl, links.linkName
+        FROM links
+        INNER JOIN rooms
+        ON links.roomId = rooms.roomId
+        WHERE rooms.roomId = ${results[0].roomId}
+        && links.played = 1
+        ORDER BY lastModified DESC`, (histErr, historyResults) => {
+          if (err) console.log(err);
+          returnObj.history = historyResults;
+          res.send(returnObj);
+        });
       });
     } else {
       const returnObj = {

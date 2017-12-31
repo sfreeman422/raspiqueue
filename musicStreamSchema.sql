@@ -21,6 +21,8 @@ CREATE TABLE links (
     linkUrl VARCHAR(400) NOT NULL,
     roomId BIGINT NOT NULL,
     userId BIGINT NOT NULL,
+    played TINYINT(1),
+    lastModified TIMESTAMP,
     FOREIGN KEY (roomId) REFERENCES rooms(roomId),
     FOREIGN KEY (userId) REFERENCES users(userId),
     PRIMARY KEY (linkId)
