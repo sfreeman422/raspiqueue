@@ -62,6 +62,10 @@ input {
   grid-template-rows: [top-margin] 1% [content-area] 98% [bottom-margin] 1%;
   height: 65vh;
 }
+.no-room {
+  grid-column-start: col1;
+  grid-column-end: right-margin;
+}
 .queue {
   grid-column-start: col1;
   grid-column-end: col1-margin;

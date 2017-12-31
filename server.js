@@ -26,19 +26,25 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/public/index.html'));
 });
 
-// Joins a room if it exists in our DB. Asks the user to create it if it does not exist.
+// Confirms whether or not a room exists in our DB.
 app.get('/api/:roomName', (req, res) => {
   connection.query(`SELECT * FROM rooms WHERE roomName = '${req.params.roomName}'`, (err, results) => {
     if (err) console.log(err);
     if (results.length > 0) {
       const returnObj = {
+        status: 200,
+        message: 'Room has been found.',
         roomName: results[0].roomName,
         roomId: results[0].roomId,
         adminUser: results[0].adminUser,
       };
       res.send(returnObj);
     } else {
-      res.status(404).send('Sorry, this room does not exist. Would you like to create it?');
+      const returnObj = {
+        status: 404,
+        message: 'Unable to find the room. Please try a new room, or create this one.',
+      };
+      res.send(returnObj);
     }
   });
 });
@@ -53,10 +59,11 @@ app.post('/create/:roomName', (req, res) => {
     }
   });
 });
-
-io.on('connection', (socket) => {
+// Connects us to our instance of socket.
+io.on('connection', (client) => {
   console.log('A User has connected');
-  socket.on('disconnect', () => {
+ 
+  client.on('disconnect', () => {
     console.log('User has disconnected');
   });
 });
