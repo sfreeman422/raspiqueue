@@ -38,7 +38,11 @@ app.get('/api/:roomName', (req, res) => {
         roomId: results[0].roomId,
         adminUser: results[0].adminUser,
       };
-      res.send(returnObj);
+      connection.query(`SELECT links.roomId, links.linkId, links.linkUrl, links.linkName FROM links INNER JOIN rooms ON links.roomId = rooms.roomId WHERE rooms.roomId = ${results[0].roomId}`, (error, queueResults) => {
+        if (error) console.log(error);
+        returnObj.queue = queueResults;
+        res.send(returnObj);
+      });
     } else {
       const returnObj = {
         status: 404,
@@ -52,7 +56,7 @@ app.get('/api/:roomName', (req, res) => {
 // Determines if we have a room that already exists with this name.
 // If not, creates one and redirects the user to the newly created room.
 app.post('/create/:roomName', (req, res) => {
-  connection.query(`INSERT INTO rooms (roomName, adminUser) VALUES ('${req.params.roomName}', 'sfreeman422')`, (err) => {
+  connection.query(`INSERT INTO rooms (roomName, adminUser) VALUES ('${req.params.roomName}', '${req.params.adminUser}')`, (err) => {
     if (err) res.send('This room already exists. Try another one!');
     else {
       res.redirect(`/join/${req.params.roomName}`);
@@ -60,15 +64,16 @@ app.post('/create/:roomName', (req, res) => {
   });
 });
 // Connects us to our instance of socket.
-io.on('connection', (client) => {
-  console.log('A User has connected');
- 
+io.sockets.on('connection', (client) => {
+  // Grabs the ip address of our user.
+  const userIP = client.request.connection.remoteAddress;
+  console.log(`New connection from ${userIP}`);
   client.on('disconnect', () => {
-    console.log('User has disconnected');
+    console.log(`User has disconnected at ${userIP}`);
   });
 });
 
-server.listen(3000, (err) => {
+server.listen(port, (err) => {
   if (err) console.log(err);
   else console.log(`Listening on port ${port}!`);
 });

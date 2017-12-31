@@ -31,10 +31,13 @@ class App extends Component {
             // That we will make on the server.
             this.setState({
               roomName: json.roomName,
+              queueArr: json.queue,
             });
             const client = openSocket();
+            // Connects us to the specific name space we are looking for.
+            // This needs work.
+            // How can our users see messages/queue/video info via this socket?
             client.connect(`/${json.roomName}`);
-            client.on('connectionResponse', response => console.log(response));
           } else if (json.status === 404) {
             this.setState({
               roomErr: json.message,
@@ -49,7 +52,7 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to Music Stream</h1>
+          <h1 className="App-title">{this.state.roomName === '' ? 'Welcome to Music Stream' : this.state.roomName}</h1>
         </header>
         {this.state.roomErr !== '' ?
           <div className="container">
