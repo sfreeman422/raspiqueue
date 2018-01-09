@@ -21,6 +21,8 @@ class App extends Component {
       messageArr: testData.messageArr,
       historyArr: [],
     };
+    this.adjustQueue = this.adjustQueue.bind(this);
+    this.markPlayed = this.markPlayed.bind(this);
   }
   componentWillMount() {
     if (this.props.match.params.roomName !== undefined) {
@@ -47,8 +49,28 @@ class App extends Component {
         });
     }
   }
+  markPlayed(songObj) {
+    console.log(songObj);
+    fetch('/api/played', {
+      method: 'post',
+      headers: {
+        Accept: 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(songObj),
+    }).then(response => response.json()).then((json) => {
+      this.setState({
+        queueArr: json.queue,
+        historyArr: json.history,
+      });
+    });
+  }
+  adjustQueue() {
+    const justPlayed = this.state.queueArr[0];
+    console.log(justPlayed);
+    this.markPlayed(justPlayed);
+  }
   render() {
-    console.log(this.state);
     return (
       <div className="App">
         <header className="App-header">
@@ -66,6 +88,7 @@ class App extends Component {
             />
             <VideoContent
               queueArr={this.state.queueArr}
+              adjustQueue={this.adjustQueue}
             />
             <Chat messageArr={this.state.messageArr} />
           </div>}

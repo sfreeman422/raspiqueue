@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
+
 const port = 3000;
 const app = express();
 const server = require('http').createServer(app);
@@ -21,6 +22,7 @@ connection.connect((err) => {
 
 app.use(express.static(path.join(`${__dirname}/public`)));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 // Static routes
 app.get('/', (req, res) => {
@@ -42,12 +44,14 @@ app.get('/api/:roomName', (req, res) => {
       };
       // Retrieves all information necessary for our queue.
       connection.query(`
-      SELECT users.userName, links.linkName, links.linkUrl, rooms_links.lastModified
+      SELECT users.userName, links.linkName, links.linkUrl, links.linkId, rooms_links.lastModified, rooms.roomId
       FROM rooms_links
       INNER JOIN links
         ON links.linkId = rooms_links.linkId
       INNER JOIN users
         ON users.userId = rooms_links.userId
+      INNER JOIN rooms
+        ON rooms_links.roomId = rooms.roomId
       WHERE rooms_links.played = 0 && rooms_links.roomId = ${results[0].roomId}
       ORDER BY rooms_links.lastModified ASC`, (queueErr, queueResults) => {
         if (queueErr) console.log(queueErr);
@@ -92,6 +96,48 @@ app.post('/api/create/room', (req, res) => {
     }
   });
 });
+
+app.post('/api/played', (req, res) => {
+  const returnObj = {
+    queue: [],
+    history: [],
+  };
+  connection.query(`
+  UPDATE rooms_links
+    SET played = 1
+  WHERE linkId = ${req.body.linkId} && roomId = ${req.body.roomId}
+  `, (err, results) => {
+    if (err) console.log(err);
+    connection.query(`
+      SELECT users.userName, links.linkName, links.linkUrl, links.linkId, rooms_links.lastModified, rooms.roomId
+      FROM rooms_links
+      INNER JOIN links
+        ON links.linkId = rooms_links.linkId
+      INNER JOIN users
+        ON users.userId = rooms_links.userId
+      INNER JOIN rooms
+        ON rooms_links.roomId = rooms.roomId
+      WHERE rooms_links.played = 0 && rooms_links.roomId = ${req.body.roomId}
+      ORDER BY rooms_links.lastModified ASC`, (queueErr, queueResults) => {
+      if (queueErr) console.log(queueErr);
+      returnObj.queue = queueResults;
+      connection.query(`
+        SELECT users.userName, links.linkName, links.linkUrl, rooms_links.lastModified
+        FROM rooms_links
+        INNER JOIN links
+          ON links.linkId = rooms_links.linkId
+        INNER JOIN users
+          ON users.userId = rooms_links.userId
+        WHERE rooms_links.played = 1 && rooms_links.roomId = ${req.body.roomId}
+        ORDER BY rooms_links.lastModified ASC`, (historyErr, historyResults) => {
+        if (historyErr) console.log(historyErr);
+        returnObj.history = historyResults;
+        res.send(returnObj);
+      });
+    });
+  });
+});
+
 // Connects us to our instance of socket.
 io.sockets.on('connection', (client) => {
   // Grabs the ip address of our user.
