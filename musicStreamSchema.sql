@@ -8,6 +8,7 @@ CREATE TABLE users(
     pass VARCHAR(50) NOT NULL,
     PRIMARY KEY (userId)
 );
+INSERT INTO users(userName, pass) VALUES('sfreeman422', 'test');
 
 CREATE TABLE links (
 	linkId BIGINT NOT NULL AUTO_INCREMENT,
@@ -15,6 +16,11 @@ CREATE TABLE links (
     linkUrl VARCHAR(400) NOT NULL,
     PRIMARY KEY (linkId)
 );
+INSERT INTO links(linkName, linkUrl) VALUES('Volbeat - A Warriors Call', 'rSmtHBMjXLU');
+INSERT INTO links(linkName, linkUrl) VALUES('Pierce the Veil - Caraphernelia', 'FZVYOriINwc');
+INSERT INTO links(linkName, linkUrl) VALUES('Escape The Fate - Situations', 'USriZAMR2nA');
+INSERT INTO links(linkName, linkUrl) VALUES('Framing Hanley - Lollipop', 'vbUR0SRceD0');
+INSERT INTO links(linkName, linkUrl) VALUES('The Devil Wears Prada - Still Fly (Punk Goes Crunk)', '45SDOEbC9wg');
 
 CREATE TABLE rooms(
 	roomId BIGINT NOT NULL AUTO_INCREMENT,
@@ -24,6 +30,7 @@ CREATE TABLE rooms(
     PRIMARY KEY (roomId),
     CONSTRAINT FK_adminUser FOREIGN KEY (adminUser) REFERENCES users(userId)
 );
+INSERT INTO rooms(roomName, adminUser, pass) VALUES('metalboiz', 1, 'test');
 
 CREATE TABLE rooms_links (
 	linkId BIGINT,
@@ -36,3 +43,8 @@ CREATE TABLE rooms_links (
     CONSTRAINT FK_room FOREIGN KEY (roomId) REFERENCES rooms(roomId),
 	CONSTRAINT FK_user FOREIGN KEY (userId) REFERENCES users(userId)
 );
+INSERT INTO rooms_links(linkId, roomId, userId, played) VALUES(1, 1, 1, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played) VALUES(2, 1, 1, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played) VALUES(3, 1, 1, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played) VALUES(4, 1, 1, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played) VALUES(5, 1, 1, 0);

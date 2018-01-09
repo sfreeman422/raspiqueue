@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const mysql = require('mysql');
-
+const bodyParser = require('body-parser');
 const port = 3000;
 const app = express();
 const server = require('http').createServer(app);
@@ -20,6 +20,7 @@ connection.connect((err) => {
 });
 
 app.use(express.static(path.join(`${__dirname}/public`)));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Static routes
 app.get('/', (req, res) => {
@@ -39,27 +40,28 @@ app.get('/api/:roomName', (req, res) => {
         roomId: results[0].roomId,
         adminUser: results[0].adminUser,
       };
-      // Gets our current queue.
+      // Retrieves all information necessary for our queue.
       connection.query(`
-      SELECT links.roomId, links.linkId, links.linkUrl, links.linkName
-      FROM links
-      INNER JOIN rooms
-      ON links.roomId = rooms.roomId
-      WHERE rooms.roomId = ${results[0].roomId}
-      && links.played = 0
-      ORDER BY lastModified ASC`, (error, queueResults) => {
-        if (error) console.log(error);
+      SELECT users.userName, links.linkName, links.linkUrl, rooms_links.lastModified
+      FROM rooms_links
+      INNER JOIN links
+        ON links.linkId = rooms_links.linkId
+      INNER JOIN users
+        ON users.userId = rooms_links.userId
+      WHERE rooms_links.played = 0 && rooms_links.roomId = ${results[0].roomId}
+      ORDER BY rooms_links.lastModified ASC`, (queueErr, queueResults) => {
+        if (queueErr) console.log(queueErr);
         returnObj.queue = queueResults;
-        // Gets our history queue.
         connection.query(`
-        SELECT links.roomId, links.linkId, links.linkUrl, links.linkName
-        FROM links
-        INNER JOIN rooms
-        ON links.roomId = rooms.roomId
-        WHERE rooms.roomId = ${results[0].roomId}
-        && links.played = 1
-        ORDER BY lastModified DESC`, (histErr, historyResults) => {
-          if (err) console.log(err);
+        SELECT users.userName, links.linkName, links.linkUrl, rooms_links.lastModified
+        FROM rooms_links
+        INNER JOIN links
+          ON links.linkId = rooms_links.linkId
+        INNER JOIN users
+          ON users.userId = rooms_links.userId
+        WHERE rooms_links.played = 1 && rooms_links.roomId = ${results[0].roomId}
+        ORDER BY rooms_links.lastModified ASC`, (historyErr, historyResults) => {
+          if (historyErr) console.log(historyErr);
           returnObj.history = historyResults;
           res.send(returnObj);
         });
@@ -76,11 +78,17 @@ app.get('/api/:roomName', (req, res) => {
 
 // Determines if we have a room that already exists with this name.
 // If not, creates one and redirects the user to the newly created room.
-app.post('/create/:roomName', (req, res) => {
-  connection.query(`INSERT INTO rooms (roomName, adminUser) VALUES ('${req.params.roomName}', '${req.params.adminUser}')`, (err) => {
-    if (err) res.send('This room already exists. Try another one!');
-    else {
-      res.redirect(`/join/${req.params.roomName}`);
+app.post('/api/create/room', (req, res) => {
+  connection.query(`INSERT INTO rooms (roomName, adminUser, pass) VALUES ('${req.body.roomName}', '${req.body.adminUserId}', '${req.body.pass}')`, (err) => {
+    if (err) {
+      console.log(err);
+      if (err.code === 'ER_DUP_ENTRY') {
+        res.send('This room already exists. Try another one!');
+      } else {
+        res.send('An unexpected error occurred. Please try again.');
+      }
+    } else {
+      res.redirect(`/join/${req.body.roomName}`);
     }
   });
 });
