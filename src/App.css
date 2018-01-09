@@ -44,15 +44,6 @@ iframe{
 input {
   width: 90%;
 }
-.thumbsUpButton, .thumbsDownButton {
-  font-size: 60px;
-}
-.thumbsUpButton {
-  color: green;
-}
-.thumbsDownButton {
-  color: red;
-}
 .fas {
   color: black;
 }
@@ -72,9 +63,15 @@ input {
   grid-row-start: content-area;
 }
 .video-content{
+  display: subgrid;
   grid-column-start: col2;
   grid-column-end: col3-margin;
   grid-row-start: content-area;
+}
+.thumbsUp, .thumbsDown {
+  display: inline-block;
+  width: 50%;
+  font-size: 68px;
 }
 .chat {
   grid-column-start: col3;

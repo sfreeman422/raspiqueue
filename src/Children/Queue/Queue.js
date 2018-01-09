@@ -15,7 +15,7 @@ class Queue extends Component {
       chosenView: view,
     });
   }
-  // Warning: ChosenView = 'myQueue' is not functional. Need to determine when to get users queue.
+  // Issue: chosenView = 'myQueue' is not functional. Need to determine when to get users queue.
   render() {
     return (
       <div className="queue">
