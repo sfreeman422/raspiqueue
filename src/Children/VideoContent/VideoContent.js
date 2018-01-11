@@ -42,17 +42,19 @@ class VideoContent extends Component {
   }
   render() {
     return (
-      <div className="video-content">
+      <div className="video-content-section">
         {this.props.queueArr.length > 0 ?
-          <YouTube
-            videoId={this.props.queueArr[0].linkUrl}
-            opts={options}
-            onEnd={() => this.props.adjustQueue()}
-          />
+          <div className="video-content">
+            <YouTube
+              videoId={this.props.queueArr[0].linkUrl}
+              opts={options}
+              onEnd={() => this.props.adjustQueue()}
+            />
+            <ThumbsButton type="down" songId={this.props.queueArr[0].linkUrl} downvote={() => this.downvote()} upvote={() => this.upvote()} handleKeyUp={() => this.handleKeyUp()} />
+            <ThumbsButton type="up" songId={this.props.queueArr[0].linkUrl} downvote={() => this.downvote()} upvote={() => this.upvote()} handleKeyUp={() => this.handleKeyUp()} />
+          </div>
     :
           <h3>No songs in the queue! Queue something</h3>}
-        <ThumbsButton type="down" songId={this.props.queueArr[0].linkUrl} downvote={() => this.downvote()} upvote={() => this.upvote()} handleKeyUp={() => this.handleKeyUp()} />
-        <ThumbsButton type="up" songId={this.props.queueArr[0].linkUrl} downvote={() => this.downvote()} upvote={() => this.upvote()} handleKeyUp={() => this.handleKeyUp()} />
       </div>
     );
   }
