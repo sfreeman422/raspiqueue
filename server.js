@@ -7,11 +7,11 @@ const youtubeRoutes = require('./routes/youtube-api.js');
 const port = 3000;
 const app = express();
 
-app.use(apiRoutes);
-app.use(youtubeRoutes);
 app.use(express.static(path.join(`${__dirname}/public`)));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(apiRoutes);
+app.use(youtubeRoutes);
 
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
