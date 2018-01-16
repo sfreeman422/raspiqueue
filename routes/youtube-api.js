@@ -1,6 +1,4 @@
-const express = require('express');
-
-const router = express.Router();
+const router = require('./api.js');
 
 router.get('/youtube', (req, res) => {
   res.send('lol');
