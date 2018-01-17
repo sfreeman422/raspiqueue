@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 // Renders a thumbsUp or thumbsDown button based on the props passed in.
 const ThumbsButton = props => (
   <div
-    className="thumbsDown"
+    className="thumbs"
     role="button"
     tabIndex="0"
     onClick={() => props.action()}
@@ -12,7 +12,7 @@ const ThumbsButton = props => (
   >
     <i
       className={props.type}
-    /><br/>
+    /><br />
     {props.type === 'far fa-thumbs-up' ? props.votes : null}
     {props.type === 'far fa-thumbs-down' ? props.votes : null}
   </div>
