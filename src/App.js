@@ -23,6 +23,7 @@ class App extends Component {
       historyArr: [],
     };
     this.markPlayed = this.markPlayed.bind(this);
+    this.adjustQueue = this.adjustQueue.bind(this);
   }
   componentWillMount() {
     // If we have a roomName parameter...
@@ -55,7 +56,6 @@ class App extends Component {
   // If a song has been played, it will be listed in the historyArr
   // If a song has not yet been played, it will be listed in the queue.
   markPlayed(songObj) {
-    console.log(songObj);
     fetch('/api/played', {
       method: 'post',
       headers: {
@@ -69,6 +69,15 @@ class App extends Component {
         historyArr: json.history,
       });
     });
+  }
+  adjustQueue(songObj, upvotes, downvotes) {
+    // The following three values should be sent to a route that will adjust the amount of upvotes/downvotes on a song.
+    // This will be stored in the DB so that end users can view the most liked songs in a room etc.
+    // Possibility: May want to constantly update the upvotes/downvotes per vote OR communicate the current # via socket.
+    console.log(songObj);
+    console.log(upvotes);
+    console.log(downvotes);
+    this.markPlayed(songObj);
   }
   render() {
     return (
@@ -88,7 +97,7 @@ class App extends Component {
             />
             <VideoContent
               queueArr={this.state.queueArr}
-              adjustQueue={this.markPlayed}
+              adjustQueue={this.adjustQueue}
             />
             <Chat messageArr={this.state.messageArr} />
           </div>}
