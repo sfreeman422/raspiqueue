@@ -12,7 +12,9 @@ const ThumbsButton = props => (
   >
     <i
       className={props.type}
-    />
+    /><br/>
+    {props.type === 'far fa-thumbs-up' ? props.votes : null}
+    {props.type === 'far fa-thumbs-down' ? props.votes : null}
   </div>
 );
 
@@ -20,7 +22,7 @@ export default ThumbsButton;
 
 ThumbsButton.propTypes = {
   type: PropTypes.string.isRequired,
-  songId: PropTypes.string.isRequired,
+  votes: PropTypes.number.isRequired,
   action: PropTypes.func.isRequired,
   handleKeyUp: PropTypes.func.isRequired,
 };

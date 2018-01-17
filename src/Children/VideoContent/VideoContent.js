@@ -54,8 +54,8 @@ class VideoContent extends Component {
               opts={options}
               onEnd={() => this.props.adjustQueue(this.props.queueArr[0], this.state.upvotes, this.state.downvotes)}
             />
-            <ThumbsButton type="far fa-thumbs-down" songId={this.props.queueArr[0].linkUrl} action={() => this.downvote()} handleKeyUp={() => this.handleKeyUp()} />
-            <ThumbsButton type="far fa-thumbs-up" songId={this.props.queueArr[0].linkUrl} action={() => this.upvote()} handleKeyUp={() => this.handleKeyUp()} />
+            <ThumbsButton type="far fa-thumbs-down" songId={this.props.queueArr[0].linkUrl} action={() => this.downvote()} handleKeyUp={() => this.handleKeyUp()} votes={this.state.downvotes} />
+            <ThumbsButton type="far fa-thumbs-up" songId={this.props.queueArr[0].linkUrl} action={() => this.upvote()} handleKeyUp={() => this.handleKeyUp()} votes={this.state.upvotes} />
           </div>
     :
           <h3>No songs in the queue! Queue something</h3>}
