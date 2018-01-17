@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import fetch from 'isomorphic-fetch';
 import openSocket from 'socket.io-client';
 import logo from './logo.svg';
 import './App.css';
@@ -21,21 +22,22 @@ class App extends Component {
       messageArr: testData.messageArr,
       historyArr: [],
     };
-    this.adjustQueue = this.adjustQueue.bind(this);
     this.markPlayed = this.markPlayed.bind(this);
   }
   componentWillMount() {
+    // If we have a roomName parameter...
     if (this.props.match.params.roomName !== undefined) {
+      // Get the roomName, current queue and history queue from MySQL.
       fetch(`/api/${this.props.match.params.roomName}`)
         .then(response => response.json()).then((json) => {
           if (json.status === 200) {
-            // This part should add additional information to state based on the SQL queries
-            // That we will make on the server.
+            // Sets state based on results of query.
             this.setState({
               roomName: json.roomName,
               queueArr: json.queue,
               historyArr: json.history,
             });
+            // Creates a socket connection for the client.
             const client = openSocket();
             // Connects us to the specific name space we are looking for.
             // This needs work.
@@ -49,6 +51,9 @@ class App extends Component {
         });
     }
   }
+  // Makes a request to the server to make a song as played. 
+  // If a song has been played, it will be listed in the historyArr
+  // If a song has not yet been played, it will be listed in the queue.
   markPlayed(songObj) {
     console.log(songObj);
     fetch('/api/played', {
@@ -64,11 +69,6 @@ class App extends Component {
         historyArr: json.history,
       });
     });
-  }
-  adjustQueue() {
-    const justPlayed = this.state.queueArr[0];
-    console.log(justPlayed);
-    this.markPlayed(justPlayed);
   }
   render() {
     return (
@@ -88,7 +88,7 @@ class App extends Component {
             />
             <VideoContent
               queueArr={this.state.queueArr}
-              adjustQueue={this.adjustQueue}
+              adjustQueue={this.markPlayed}
             />
             <Chat messageArr={this.state.messageArr} />
           </div>}

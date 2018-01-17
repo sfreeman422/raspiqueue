@@ -48,7 +48,7 @@ class VideoContent extends Component {
             <YouTube
               videoId={this.props.queueArr[0].linkUrl}
               opts={options}
-              onEnd={() => this.props.adjustQueue()}
+              onEnd={() => this.props.adjustQueue(this.props.queueArr[0])}
             />
             <ThumbsButton type="down" songId={this.props.queueArr[0].linkUrl} downvote={() => this.downvote()} upvote={() => this.upvote()} handleKeyUp={() => this.handleKeyUp()} />
             <ThumbsButton type="up" songId={this.props.queueArr[0].linkUrl} downvote={() => this.downvote()} upvote={() => this.upvote()} handleKeyUp={() => this.handleKeyUp()} />

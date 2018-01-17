@@ -5,6 +5,10 @@ import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
+/*
+Renders a router and a switch
+allowing us to take advantage of route parameters
+*/
 ReactDOM.render(
   <Router>
     <Switch>

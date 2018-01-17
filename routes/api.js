@@ -49,7 +49,7 @@ router.get('/api/:roomName', (req, res) => {
         INNER JOIN users
           ON users.userId = rooms_links.userId
         WHERE rooms_links.played = 1 && rooms_links.roomId = ${results[0].roomId}
-        ORDER BY rooms_links.lastModified ASC`, (historyErr, historyResults) => {
+        ORDER BY rooms_links.lastModified DESC`, (historyErr, historyResults) => {
           if (historyErr) console.log(historyErr);
           returnObj.history = historyResults;
           res.send(returnObj);
@@ -114,7 +114,7 @@ router.post('/api/played', (req, res) => {
         INNER JOIN users
           ON users.userId = rooms_links.userId
         WHERE rooms_links.played = 1 && rooms_links.roomId = ${req.body.roomId}
-        ORDER BY rooms_links.lastModified ASC`, (historyErr, historyResults) => {
+        ORDER BY rooms_links.lastModified DESC`, (historyErr, historyResults) => {
         if (historyErr) console.log(historyErr);
         returnObj.history = historyResults;
         res.send(returnObj);

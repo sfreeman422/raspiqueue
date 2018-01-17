@@ -17,6 +17,8 @@ class Queue extends Component {
   }
   // Issue: chosenView = 'myQueue' is not functional. Need to determine when to get users queue.
   render() {
+    console.log(this.props.queueArr);
+    console.log(this.props.historyArr);
     return (
       <div className="queue">
         <button onClick={() => this.changeView('queue')}>Queue</button><button onClick={() => this.changeView('history')}>History</button><button onClick={() => this.changeView('myQueue')}>My Queue</button>
