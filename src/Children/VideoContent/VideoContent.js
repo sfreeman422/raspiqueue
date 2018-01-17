@@ -19,6 +19,7 @@ class VideoContent extends Component {
     };
     this.upvote = this.upvote.bind(this);
     this.downvote = this.downvote.bind(this);
+    this.cleanUp = this.cleanUp.bind(this);
   }
   // Increments the state of the upvotes for the currently playing song.
   upvote() {
@@ -34,6 +35,14 @@ class VideoContent extends Component {
     console.log(`Currently has ${this.state.downvotes} downvotes`);
     this.setState({
       downvotes: this.state.downvotes + 1,
+    });
+  }
+  // Sends the data off to our parent to be sent to the DB and sets local state to 0 for UV and DV.
+  cleanUp() {
+    this.props.adjustQueue(this.props.queueArr[0], this.state.upvotes, this.state.downvotes);
+    this.setState({
+      upvotes: 0,
+      downvotes: 0,
     });
   }
   // Allows us to invoke upVote/downVote from the keyboard.
@@ -52,7 +61,7 @@ class VideoContent extends Component {
             <YouTube
               videoId={this.props.queueArr[0].linkUrl}
               opts={options}
-              onEnd={() => this.props.adjustQueue(this.props.queueArr[0], this.state.upvotes, this.state.downvotes)}
+              onEnd={() => this.cleanUp()}
             />
             <ThumbsButton type="far fa-thumbs-down" songId={this.props.queueArr[0].linkUrl} action={() => this.downvote()} handleKeyUp={() => this.handleKeyUp()} votes={this.state.downvotes} />
             <ThumbsButton type="far fa-thumbs-up" songId={this.props.queueArr[0].linkUrl} action={() => this.upvote()} handleKeyUp={() => this.handleKeyUp()} votes={this.state.upvotes} />

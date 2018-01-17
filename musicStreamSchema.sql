@@ -37,14 +37,16 @@ CREATE TABLE rooms_links (
     roomId BIGINT,
     userId BIGINT,
     played TINYINT(1),
+    upvotes BIGINT,
+    downvotes BIGINT,
     lastModified TIMESTAMP,
     CONSTRAINT room_link_pk PRIMARY KEY (linkId, roomId),
     CONSTRAINT FK_link FOREIGN KEY (linkId) REFERENCES links(linkId),
     CONSTRAINT FK_room FOREIGN KEY (roomId) REFERENCES rooms(roomId),
 	CONSTRAINT FK_user FOREIGN KEY (userId) REFERENCES users(userId)
 );
-INSERT INTO rooms_links(linkId, roomId, userId, played) VALUES(1, 1, 1, 0);
-INSERT INTO rooms_links(linkId, roomId, userId, played) VALUES(2, 1, 1, 0);
-INSERT INTO rooms_links(linkId, roomId, userId, played) VALUES(3, 1, 1, 0);
-INSERT INTO rooms_links(linkId, roomId, userId, played) VALUES(4, 1, 1, 0);
-INSERT INTO rooms_links(linkId, roomId, userId, played) VALUES(5, 1, 1, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(1, 1, 1, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(2, 1, 1, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(3, 1, 1, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(4, 1, 1, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(5, 1, 1, 0, 0, 0);

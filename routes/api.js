@@ -29,7 +29,7 @@ router.get('/api/:roomName', (req, res) => {
       };
       // Retrieves all information necessary for our queue.
       connection.query(`
-      SELECT users.userName, links.linkName, links.linkUrl, links.linkId, rooms_links.lastModified, rooms.roomId
+      SELECT users.userName, links.linkName, links.linkUrl, links.linkId, rooms_links.upvotes, rooms_links.downvotes, rooms_links.lastModified, rooms.roomId
       FROM rooms_links
       INNER JOIN links
         ON links.linkId = rooms_links.linkId
@@ -42,7 +42,7 @@ router.get('/api/:roomName', (req, res) => {
         if (queueErr) console.log(queueErr);
         returnObj.queue = queueResults;
         connection.query(`
-        SELECT users.userName, links.linkName, links.linkUrl, rooms_links.lastModified
+        SELECT users.userName, links.linkName, links.linkUrl, rooms_links.lastModified, rooms_links.upvotes, rooms_links.downvotes
         FROM rooms_links
         INNER JOIN links
           ON links.linkId = rooms_links.linkId
@@ -83,13 +83,14 @@ router.post('/api/create/room', (req, res) => {
 });
 
 router.post('/api/played', (req, res) => {
+  console.log(req.body);
   const returnObj = {
     queue: [],
     history: [],
   };
   connection.query(`
   UPDATE rooms_links
-    SET played = 1
+    SET played = 1, upvotes = ${req.body.upvotes}, downvotes= ${req.body.downvotes}
   WHERE linkId = ${req.body.linkId} && roomId = ${req.body.roomId}
   `, (err, results) => {
     if (err) console.log(err);
