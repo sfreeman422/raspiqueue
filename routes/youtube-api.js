@@ -42,7 +42,7 @@ fs.readFile('./private/client_secret.json', (err, content) => {
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-function authorize(credentials, requestData, callback) {
+function authorize(credentials, requestData, callback, res) {
   const clientSecret = credentials.installed.client_secret;
   const clientId = credentials.installed.client_id;
   const redirectUrl = credentials.installed.redirect_uris[0];
@@ -52,11 +52,10 @@ function authorize(credentials, requestData, callback) {
   // Check if we have previously stored a token.
   fs.readFile(TOKEN_PATH, (err, token) => {
     if (err) {
-      getNewToken(oauth2Client, requestData, callback);
-    } else {
-      oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client, requestData);
+      return getNewToken(oauth2Client, requestData, callback, res);
     }
+    oauth2Client.credentials = JSON.parse(token);
+    return callback(oauth2Client, requestData, res);
   });
 }
 
@@ -68,7 +67,7 @@ function authorize(credentials, requestData, callback) {
  * @param {getEventsCallback} callback The callback to call with the authorized
  *     client.
  */
-function getNewToken(oauth2Client, requestData, callback) {
+function getNewToken(oauth2Client, requestData, callback, res) {
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
     scope: SCOPES,
@@ -87,7 +86,7 @@ function getNewToken(oauth2Client, requestData, callback) {
       }
       oauth2Client.credentials = token;
       storeToken(token);
-      callback(oauth2Client, requestData);
+      callback(oauth2Client, requestData, res);
     });
   });
 }
@@ -166,7 +165,7 @@ function createResource(properties) {
 }
 
 
-function searchListByKeyword(auth, requestData) {
+function searchListByKeyword(auth, requestData, res) {
   const service = google.youtube('v3');
   const parameters = removeEmptyParameters(requestData.params);
   parameters.auth = auth;
@@ -176,6 +175,8 @@ function searchListByKeyword(auth, requestData) {
       return;
     }
     console.log(response);
+    // Super, super ghetto way to return the results. Passed the res object all over.
+    res.json(response.items);
   });
 }
 
@@ -191,8 +192,9 @@ router.post('/api/youtube', (req, res) => {
   };
   // This will need to be promisified to only return once the request is complete.
   // The request is being made properly, we just need to send back to the client properly.
-  authorize(clientSecrets, requestParams, searchListByKeyword);
-  res.send('lol');
+  // This is ridiculous, we are passing the res as a function param to get a response back.
+  // FIX ME.
+  authorize(clientSecrets, requestParams, searchListByKeyword, res);
 });
 
 module.exports = router;
