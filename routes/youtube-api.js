@@ -187,7 +187,7 @@ router.post('/api/youtube', (req, res) => {
       maxResults: '25',
       part: 'snippet',
       q: req.body.query,
-      type: '',
+      type: 'video',
     },
   };
   // This will need to be promisified to only return once the request is complete.

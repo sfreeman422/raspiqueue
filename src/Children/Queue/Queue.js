@@ -8,6 +8,7 @@ class Queue extends Component {
     this.state = {
       chosenView: 'queue',
       searchTerm: '',
+      searchResults: [],
     };
     this.changeView = this.changeView.bind(this);
     this.search = this.search.bind(this);
@@ -24,21 +25,30 @@ class Queue extends Component {
   }
   search(e) {
     e.preventDefault();
-    console.log('should be serching');
-    console.log(this.state.searchTerm);
     fetch('/api/youtube', {
       method: 'POST',
-      body: {
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         query: this.state.searchTerm,
-      },
+      }),
     })
       .then(res => res.json())
-      .then(json => console.log(json));
+      .then(json => 
+        this.setState({
+          searchResults: json,
+          chosenView: 'searchResults',
+        }));
   }
   adjustState(event) {
     this.setState({
       searchTerm: event.target.value,
     });
+    if (event.target.value === '') {
+      this.setState({
+        searchResults: [],
+        chosenView: 'queue',
+      });
+    }
   }
   // Issue: chosenView = 'myQueue' is not functional. Need to determine when to get users queue.
   render() {
@@ -58,6 +68,7 @@ class Queue extends Component {
             {this.state.chosenView === 'queue' ? this.props.queueArr.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}{index === 0 ? <i className="fas fa-headphones" /> : null}</td></tr>) : null}
             {this.state.chosenView === 'history' ? this.props.historyArr.map((historyItem, index) => <tr key={`history-row-item${index}`}><td>{historyItem.linkName}</td></tr>) : null}
             {this.state.chosenView === 'myQueue' ? this.props.queueArr.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}</td></tr>) : null}
+            {this.state.chosenView === 'searchResults' ? this.state.searchResults.map((searchItem, index) => <tr key={`search-result-item-${index}`}><td>{searchItem.snippet.title}</td></tr>) : null}
           </tbody>
         </table>
       </div>

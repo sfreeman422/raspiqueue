@@ -42,7 +42,7 @@ iframe{
   width: 100%;
 }
 input {
-  width: 90%;
+  width: 80%;
 }
 .fas {
   color: black;
@@ -61,6 +61,8 @@ input {
   grid-column-start: col1;
   grid-column-end: col1-margin;
   grid-row-start: content-area;
+  max-height: 100%;
+  max-width: 100%;
 }
 .video-content {
   height: 100%;
