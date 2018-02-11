@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SearchResults = ({ index, searchItem, addToPlaylist }) => (
+const SearchResult = ({ index, searchItem, addToPlaylist }) => (
   <tr key={`search-result-item-${index}`}>
     <td>
       {searchItem.snippet.title}<br />
@@ -10,4 +10,4 @@ const SearchResults = ({ index, searchItem, addToPlaylist }) => (
   </tr>
 );
 
-export default SearchResults;
+export default SearchResult;

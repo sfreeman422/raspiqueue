@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import fetch from 'isomorphic-fetch';
-import SearchResults from './Children/SearchResult';
+import SearchResult from './Children/SearchResult';
 
 class Queue extends Component {
   constructor(props) {
@@ -70,7 +70,7 @@ class Queue extends Component {
             {this.state.chosenView === 'queue' ? this.props.queueArr.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}{index === 0 ? <i className="fas fa-headphones" /> : null}</td></tr>) : null}
             {this.state.chosenView === 'history' ? this.props.historyArr.map((historyItem, index) => <tr key={`history-row-item${index}`}><td>{historyItem.linkName}</td></tr>) : null}
             {this.state.chosenView === 'myQueue' ? this.props.queueArr.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}</td></tr>) : null}
-            {this.state.chosenView === 'searchResults' ? this.state.searchResults.map((searchItem, index) => <SearchResults index={index} searchItem={searchItem} addToPlaylist={this.props.addToPlaylist} />) : null}
+            {this.state.chosenView === 'searchResults' ? this.state.searchResults.map((searchItem, index) => <SearchResult index={index} searchItem={searchItem} addToPlaylist={this.props.addToPlaylist} />) : null}
           </tbody>
         </table>
       </div>
