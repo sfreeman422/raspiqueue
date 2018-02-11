@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import fetch from 'isomorphic-fetch';
+import SearchResults from './Children/SearchResult';
 
 class Queue extends Component {
   constructor(props) {
@@ -33,11 +34,12 @@ class Queue extends Component {
       }),
     })
       .then(res => res.json())
-      .then(json => 
+      .then((json) => {
         this.setState({
           searchResults: json,
           chosenView: 'searchResults',
-        }));
+        });
+      });
   }
   adjustState(event) {
     this.setState({
@@ -68,7 +70,7 @@ class Queue extends Component {
             {this.state.chosenView === 'queue' ? this.props.queueArr.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}{index === 0 ? <i className="fas fa-headphones" /> : null}</td></tr>) : null}
             {this.state.chosenView === 'history' ? this.props.historyArr.map((historyItem, index) => <tr key={`history-row-item${index}`}><td>{historyItem.linkName}</td></tr>) : null}
             {this.state.chosenView === 'myQueue' ? this.props.queueArr.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}</td></tr>) : null}
-            {this.state.chosenView === 'searchResults' ? this.state.searchResults.map((searchItem, index) => <tr key={`search-result-item-${index}`}><td>{searchItem.snippet.title}</td></tr>) : null}
+            {this.state.chosenView === 'searchResults' ? this.state.searchResults.map((searchItem, index) => <SearchResults index={index} searchItem={searchItem} addToPlaylist={this.props.addToPlaylist} />) : null}
           </tbody>
         </table>
       </div>

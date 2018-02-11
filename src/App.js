@@ -24,6 +24,7 @@ class App extends Component {
     };
     this.markPlayed = this.markPlayed.bind(this);
     this.adjustQueue = this.adjustQueue.bind(this);
+    this.addToPlaylist = this.addToPlaylist.bind(this);
   }
   componentWillMount() {
     // If we have a roomName parameter...
@@ -70,6 +71,10 @@ class App extends Component {
       });
     });
   }
+  addToPlaylist(songObj) {
+    console.log("should add to db");
+    console.log(songObj);
+  }
   adjustQueue(songObj, upvotes, downvotes) {
     const dbObj = Object.assign(songObj, {});
     // The following three values should be sent to a route that will adjust the amount of upvotes/downvotes on a song.
@@ -95,6 +100,7 @@ class App extends Component {
             <Queue
               queueArr={this.state.queueArr}
               historyArr={this.state.historyArr}
+              addToPlaylist={this.addToPlaylist}
             />
             <VideoContent
               queueArr={this.state.queueArr}
