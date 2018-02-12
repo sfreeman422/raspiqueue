@@ -13,7 +13,8 @@ INSERT INTO users(userName, pass) VALUES('sfreeman422', 'test');
 CREATE TABLE links (
 	linkId BIGINT NOT NULL AUTO_INCREMENT,
     linkName VARCHAR(300) NOT NULL,
-    linkUrl VARCHAR(400) NOT NULL,
+    linkUrl VARCHAR(400) NOT NULL UNIQUE,
+    linkThumbnail VARCHAR(400),
     PRIMARY KEY (linkId)
 );
 INSERT INTO links(linkName, linkUrl) VALUES('Volbeat - A Warriors Call', 'rSmtHBMjXLU');
@@ -30,6 +31,7 @@ CREATE TABLE rooms(
     PRIMARY KEY (roomId),
     CONSTRAINT FK_adminUser FOREIGN KEY (adminUser) REFERENCES users(userId)
 );
+INSERT INTO rooms(roomname) VALUES('lobby');
 INSERT INTO rooms(roomName, adminUser, pass) VALUES('metalboiz', 1, 'test');
 
 CREATE TABLE rooms_links (
@@ -50,3 +52,8 @@ INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALU
 INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(3, 1, 1, 0, 0, 0);
 INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(4, 1, 1, 0, 0, 0);
 INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(5, 1, 1, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(1, 2, 1, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(2, 2, 1, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(3, 2, 1, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(4, 2, 1, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(5, 2, 1, 0, 0, 0);
