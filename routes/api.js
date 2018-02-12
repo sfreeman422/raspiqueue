@@ -124,4 +124,16 @@ router.post('/api/played', (req, res) => {
   });
 });
 
+router.post('/api/addSong', (req, res) => {
+  console.log(req.body);
+  connection.query(`
+  INSERT INTO links (linkName, linkUrl, linkThumbnail) VALUES ('${req.body.title}', '${req.body.video_id}', '${req.body.thumbnail}')`, (addErr, addResults) => {
+    if (addErr) console.log(addErr);
+    connection.query(`
+    INSERT INTO rooms_links (linkId, roomId, userId, played, upvotes, downvotes) VALUES (LAST_INSERT_ID(), ${req.body.roomId}, ${req.body.userId}, 0, 0, 0)`, (roomLinkErr, roomLink) => {
+      if (roomLinkErr) console.log(roomLinkErr);
+      console.log(roomLink);
+    });
+  });
+});
 module.exports = router;

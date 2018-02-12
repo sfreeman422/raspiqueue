@@ -174,14 +174,12 @@ function searchListByKeyword(auth, requestData, res) {
       console.log(`The API returned an error: ${err}`);
       return;
     }
-    console.log(response);
     // Super, super ghetto way to return the results. Passed the res object all over.
     res.json(response.items);
   });
 }
 
 router.post('/api/youtube', (req, res) => {
-  console.log(req.body);
   const requestParams = {
     params: {
       maxResults: '25',

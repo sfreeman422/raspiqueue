@@ -16,6 +16,7 @@ class App extends Component {
       roomName: '',
       roomErr: '',
       users: '',
+      connectedUserId: 1, // This is a placeholder. Should be dynamic.
       loggedInStatus: false,
       loggedInUser: '',
       queueArr: testData.queueArr,
@@ -38,6 +39,7 @@ class App extends Component {
               roomName: json.roomName,
               queueArr: json.queue,
               historyArr: json.history,
+              roomId: json.roomId,
             });
             // Creates a socket connection for the client.
             const client = openSocket();
@@ -72,8 +74,16 @@ class App extends Component {
     });
   }
   addToPlaylist(songObj) {
-    console.log("should add to db");
-    console.log(songObj);
+    fetch('/api/addSong', {
+      method: 'post',
+      headers: {
+        Accept: 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(songObj),
+    }).then(response => response.json()).then((json) => {
+      console.log(json);
+    });
   }
   adjustQueue(songObj, upvotes, downvotes) {
     const dbObj = Object.assign(songObj, {});
@@ -101,6 +111,8 @@ class App extends Component {
               queueArr={this.state.queueArr}
               historyArr={this.state.historyArr}
               addToPlaylist={this.addToPlaylist}
+              roomId={this.state.roomId}
+              userId={this.state.connectedUserId}
             />
             <VideoContent
               queueArr={this.state.queueArr}
