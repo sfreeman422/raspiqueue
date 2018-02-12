@@ -9,6 +9,8 @@ import Chat from './Children/Chat/Chat';
 import NoRoom from './Children/NoRoom';
 import testData from './testData';
 
+let client;
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -26,8 +28,27 @@ class App extends Component {
     this.markPlayed = this.markPlayed.bind(this);
     this.adjustQueue = this.adjustQueue.bind(this);
     this.addToPlaylist = this.addToPlaylist.bind(this);
+    this.updateQueue = this.updateQueue.bind(this);
   }
   componentWillMount() {
+    this.updateQueue();
+  }
+  // Makes a request to the server to make a song as played.
+  // If a song has been played, it will be listed in the historyArr
+  // If a song has not yet been played, it will be listed in the queue.
+  markPlayed(songObj) {
+    fetch('/api/played', {
+      method: 'post',
+      headers: {
+        Accept: 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(songObj),
+    }).then(response => response.json()).then((json) => {
+      client.emit('queueChange', `Played video: ${songObj.title}`);
+    });
+  }
+  updateQueue() {
     // If we have a roomName parameter...
     if (this.props.match.params.roomName !== undefined) {
       // Get the roomName, current queue and history queue from MySQL.
@@ -42,11 +63,13 @@ class App extends Component {
               roomId: json.roomId,
             });
             // Creates a socket connection for the client.
-            const client = openSocket();
+            client = openSocket();
             // Connects us to the specific name space we are looking for.
             // This needs work.
             // How can our users see messages/queue/video info via this socket?
             client.connect(`/${json.roomName}`);
+            // Tells our client to update the queue when a song is added/removed, etc.
+            client.on('updateQueue', () => this.updateQueue());
           } else if (json.status === 404) {
             this.setState({
               roomErr: json.message,
@@ -54,24 +77,6 @@ class App extends Component {
           }
         });
     }
-  }
-  // Makes a request to the server to make a song as played. 
-  // If a song has been played, it will be listed in the historyArr
-  // If a song has not yet been played, it will be listed in the queue.
-  markPlayed(songObj) {
-    fetch('/api/played', {
-      method: 'post',
-      headers: {
-        Accept: 'application/json, text/plain, */*',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(songObj),
-    }).then(response => response.json()).then((json) => {
-      this.setState({
-        queueArr: json.queue,
-        historyArr: json.history,
-      });
-    });
   }
   addToPlaylist(songObj) {
     fetch('/api/addSong', {
@@ -82,7 +87,8 @@ class App extends Component {
       },
       body: JSON.stringify(songObj),
     }).then(response => response.json()).then((json) => {
-      console.log(json);
+      // Lets our server know that we have added a song.
+      client.emit('queueChange', `Added video: ${songObj.title}`);
     });
   }
   adjustQueue(songObj, upvotes, downvotes) {

@@ -3,6 +3,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const apiRoutes = require('./routes/api.js');
 const youtubeRoutes = require('./routes/youtube-api.js');
+const util = require('util');
 
 const port = 3000;
 const app = express();
@@ -21,13 +22,13 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/public/index.html'));
 });
 
-// Connects us to our instance of socket.
-io.sockets.on('connection', (client) => {
-  // Grabs the ip address of our user.
-  const userIP = client.request.connection.remoteAddress;
-  console.log(`New connection from ${userIP}`);
-  client.on('disconnect', () => {
-    console.log(`User has disconnected at ${userIP}`);
+io.on('connection', (socket) => {
+  // Emit a connected event to the socket, called connected, with the message 'You are connected'.
+  socket.emit('connected', 'You are connected.');
+  // Listen for a songAdded event. Console log when we receive it.
+  socket.on('queueChange', (message) => {
+    console.log(message);
+    io.emit('updateQueue');
   });
 });
 

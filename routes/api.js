@@ -83,56 +83,32 @@ router.post('/api/create/room', (req, res) => {
 });
 
 router.post('/api/played', (req, res) => {
-  console.log(req.body);
-  const returnObj = {
-    queue: [],
-    history: [],
-  };
   connection.query(`
   UPDATE rooms_links
     SET played = 1, upvotes = ${req.body.upvotes}, downvotes= ${req.body.downvotes}
   WHERE linkId = ${req.body.linkId} && roomId = ${req.body.roomId}
-  `, (err, results) => {
+  `, (err) => {
     if (err) console.log(err);
-    connection.query(`
-      SELECT users.userName, links.linkName, links.linkUrl, links.linkId, rooms_links.lastModified, rooms.roomId
-      FROM rooms_links
-      INNER JOIN links
-        ON links.linkId = rooms_links.linkId
-      INNER JOIN users
-        ON users.userId = rooms_links.userId
-      INNER JOIN rooms
-        ON rooms_links.roomId = rooms.roomId
-      WHERE rooms_links.played = 0 && rooms_links.roomId = ${req.body.roomId}
-      ORDER BY rooms_links.lastModified ASC`, (queueErr, queueResults) => {
-      if (queueErr) console.log(queueErr);
-      returnObj.queue = queueResults;
-      connection.query(`
-        SELECT users.userName, links.linkName, links.linkUrl, rooms_links.lastModified
-        FROM rooms_links
-        INNER JOIN links
-          ON links.linkId = rooms_links.linkId
-        INNER JOIN users
-          ON users.userId = rooms_links.userId
-        WHERE rooms_links.played = 1 && rooms_links.roomId = ${req.body.roomId}
-        ORDER BY rooms_links.lastModified DESC`, (historyErr, historyResults) => {
-        if (historyErr) console.log(historyErr);
-        returnObj.history = historyResults;
-        res.send(returnObj);
-      });
+    res.send({
+      status: 200,
+      message: `Updated video at ID: ${req.body.linkId}`,
     });
   });
 });
 
 router.post('/api/addSong', (req, res) => {
-  console.log(req.body);
+  // Removes apostrophe characters from the title so that it does not mess up our sql syntax.
+  req.body.title = req.body.title.replace(/'/g, '');
   connection.query(`
   INSERT INTO links (linkName, linkUrl, linkThumbnail) VALUES ('${req.body.title}', '${req.body.video_id}', '${req.body.thumbnail}')`, (addErr, addResults) => {
     if (addErr) console.log(addErr);
     connection.query(`
     INSERT INTO rooms_links (linkId, roomId, userId, played, upvotes, downvotes) VALUES (LAST_INSERT_ID(), ${req.body.roomId}, ${req.body.userId}, 0, 0, 0)`, (roomLinkErr, roomLink) => {
       if (roomLinkErr) console.log(roomLinkErr);
-      console.log(roomLink);
+      res.json({
+        status: 200,
+        message: 'Added song to queue successfully',
+      });
     });
   });
 });
