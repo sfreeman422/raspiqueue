@@ -76,6 +76,32 @@ class App extends Component {
             });
           }
         });
+    } else {
+      // Get the roomName, current queue and history queue from MySQL.
+      fetch('/api/lobby')
+        .then(response => response.json()).then((json) => {
+          if (json.status === 200) {
+            // Sets state based on results of query.
+            this.setState({
+              roomName: json.roomName,
+              queueArr: json.queue,
+              historyArr: json.history,
+              roomId: json.roomId,
+            });
+            // Creates a socket connection for the client.
+            client = openSocket();
+            // Connects us to the specific name space we are looking for.
+            // This needs work.
+            // How can our users see messages/queue/video info via this socket?
+            client.connect(`/${json.roomName}`);
+            // Tells our client to update the queue when a song is added/removed, etc.
+            client.on('updateQueue', () => this.updateQueue());
+          } else if (json.status === 404) {
+            this.setState({
+              roomErr: json.message,
+            });
+          }
+        });
     }
   }
   addToPlaylist(songObj) {
