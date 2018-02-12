@@ -95,7 +95,7 @@ class App extends Component {
     const dbObj = Object.assign(songObj, {});
     // The following three values should be sent to a route that will adjust the amount of upvotes/downvotes on a song.
     // This will be stored in the DB so that end users can view the most liked songs in a room etc.
-    // Possibility: May want to constantly update the upvotes/downvotes per vote OR communicate the current # via socket.
+    // Possibility: May want to constantly update the upvotes/downvotes per vote OR communicate the current # via socket?
     dbObj.upvotes += upvotes;
     dbObj.downvotes += downvotes;
     console.log(dbObj);
@@ -123,6 +123,7 @@ class App extends Component {
             <VideoContent
               queueArr={this.state.queueArr}
               adjustQueue={this.adjustQueue}
+              client={client}
             />
             <Chat messageArr={this.state.messageArr} />
           </div>}

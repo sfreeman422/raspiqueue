@@ -3,7 +3,6 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const apiRoutes = require('./routes/api.js');
 const youtubeRoutes = require('./routes/youtube-api.js');
-const util = require('util');
 
 const port = 3000;
 const app = express();
@@ -30,6 +29,13 @@ io.on('connection', (socket) => {
     console.log(message);
     io.emit('updateQueue');
   });
+  // Handles a voting situation.
+  // Still need to determine how we will use this and what our source of truth will be.
+  socket.on('vote', (voteInfo) => {
+    if (voteInfo.type === 'up') {
+      io.emit('upvoteIncrement');
+    } io.emit('downvoteIncrement');
+  })
 });
 
 server.listen(port, (err) => {
