@@ -8,7 +8,7 @@
       "type": "node",
       "request": "launch",
       "name": "Test RoundRobin",
-      "program": "${workspaceFolder}/roundRobinPOC.js"
+      "program": "${workspaceFolder}/utils/roundRobin.js"
     },
     {
       "type": "node",

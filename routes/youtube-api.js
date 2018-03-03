@@ -14,13 +14,13 @@ let clientSecrets;
 // Load client secrets from a local file.
 fs.readFile('./private/client_secret.json', (err, content) => {
   if (err) {
-    console.log(`Error loading client secret file: ${ err}`);
+    console.log(`Error loading client secret file: ${err}`);
     return;
   }
   // Authorize a client with the loaded credentials, then call the YouTube API.
   // See full code sample for authorize() function code.
-  /* 
-  Example of Params: 
+  /*
+  Example of Params:
   params: {
       maxResults: '25',
       part: 'snippet',
