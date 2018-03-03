@@ -83,4 +83,7 @@ export default Queue;
 Queue.propTypes = {
   queueArr: PropTypes.arrayOf(PropTypes.object).isRequired,
   historyArr: PropTypes.arrayOf(PropTypes.object).isRequired,
+  addToPlaylist: PropTypes.func.isRequired,
+  userId: PropTypes.number.isRequired,
+  roomId: PropTypes.number.isRequired,
 };

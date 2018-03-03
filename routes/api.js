@@ -1,3 +1,4 @@
+/* eslint no-console: 0 */
 const express = require('express');
 const mysql = require('mysql');
 const robinSort = require('../utils/roundRobin');
@@ -103,7 +104,7 @@ router.post('/api/addSong', (req, res) => {
   req.body.title = req.body.title.replace(/"/g, '');
   // Attempts to insert the link into the links table.
   connection.query(`
-  INSERT INTO links (linkName, linkUrl, linkThumbnail) VALUES ('${req.body.title}', '${req.body.video_id}', '${req.body.thumbnail}')`, (addErr, addResults) => {
+  INSERT INTO links (linkName, linkUrl, linkThumbnail) VALUES ('${req.body.title}', '${req.body.video_id}', '${req.body.thumbnail}')`, (addErr) => {
     if (addErr) {
       // If we have an error due to a duplicate entry in the links table...
       if (addErr.code === 'ER_DUP_ENTRY') {
@@ -112,11 +113,13 @@ router.post('/api/addSong', (req, res) => {
         SELECT linkId
         FROM links
         WHERE linkUrl='${req.body.video_id}'`, (dupErr, dupId) => {
-          // If there was an error getting the ID of the pre-existing video in the links table, log it.
+          // If there was an error getting the ID
+          // of the pre-existing video in the links table, log it.
           if (dupErr) console.log(dupErr);
-          // If we successfully have the ID, find it in the rooms_links table and link it to our room.
+          // If we successfully have the ID,
+          // find it in the rooms_links table and link it to our room.
           connection.query(`
-          INSERT INTO rooms_links (linkId, roomId, userId, played, upvotes, downvotes) VALUES (${dupId[0].linkId}, ${req.body.roomId}, ${req.body.userId}, 0, 0, 0)`, (roomLinkErr, roomLink) => {
+          INSERT INTO rooms_links (linkId, roomId, userId, played, upvotes, downvotes) VALUES (${dupId[0].linkId}, ${req.body.roomId}, ${req.body.userId}, 0, 0, 0)`, (roomLinkErr) => {
             // If we have an error and it is due to a duplicate of a song being added to a room...
             if (roomLinkErr) {
               if (roomLinkErr.code === 'ER_DUP_ENTRY') {
@@ -139,7 +142,7 @@ router.post('/api/addSong', (req, res) => {
       }
     } else {
       connection.query(`
-      INSERT INTO rooms_links (linkId, roomId, userId, played, upvotes, downvotes) VALUES (LAST_INSERT_ID(), ${req.body.roomId}, ${req.body.userId}, 0, 0, 0)`, (roomLinkErr, roomLink) => {
+      INSERT INTO rooms_links (linkId, roomId, userId, played, upvotes, downvotes) VALUES (LAST_INSERT_ID(), ${req.body.roomId}, ${req.body.userId}, 0, 0, 0)`, (roomLinkErr) => {
         if (roomLinkErr) console.log(roomLinkErr);
         res.json({
           status: 200,

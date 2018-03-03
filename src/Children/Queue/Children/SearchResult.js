@@ -1,6 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-const SearchResult = ({ searchItem, addToPlaylist, roomId, userId }) => {
+const SearchResult = ({
+  searchItem,
+  addToPlaylist,
+  roomId,
+  userId,
+}) => {
   const addObject = {
     video_id: searchItem.id.videoId,
     title: searchItem.snippet.title,
@@ -13,7 +19,11 @@ const SearchResult = ({ searchItem, addToPlaylist, roomId, userId }) => {
     <td>
       <div className="videoResult">
         <div className="thumbnail-section">
-          <img src={searchItem.snippet.thumbnails.default.url} id="thumbnail" />
+          <img
+            src={searchItem.snippet.thumbnails.default.url}
+            id="thumbnail"
+            alt="YouTube Thumbail"
+          />
         </div>
         <div className="video-title">
           {searchItem.snippet.title}
@@ -28,3 +38,10 @@ const SearchResult = ({ searchItem, addToPlaylist, roomId, userId }) => {
 };
 
 export default SearchResult;
+
+SearchResult.propTypes = {
+  searchItem: PropTypes.object.isRequired,
+  addToPlaylist: PropTypes.func.isRequired,
+  roomId: PropTypes.number.isRequired,
+  userId: PropTypes.number.isRequired,
+};

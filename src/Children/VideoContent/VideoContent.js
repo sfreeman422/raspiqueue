@@ -23,16 +23,12 @@ class VideoContent extends Component {
   }
   // Increments the state of the upvotes for the currently playing song.
   upvote() {
-    console.log('Current song should be upvoted.');
-    console.log(`Currently has ${this.state.upvotes} upvotes`);
     this.setState({
       upvotes: this.state.upvotes + 1,
     });
   }
   // Increments the state of the downvotes for the currently playing song.
   downvote() {
-    console.log('Current song should be downvoted.');
-    console.log(`Currently has ${this.state.downvotes} downvotes`);
     this.setState({
       downvotes: this.state.downvotes + 1,
     });
