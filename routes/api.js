@@ -1,5 +1,6 @@
 const express = require('express');
 const mysql = require('mysql');
+const robinSort = require('../utils/roundRobin');
 
 const router = express.Router();
 
@@ -40,7 +41,7 @@ router.get('/api/:roomName', (req, res) => {
       WHERE rooms_links.played = 0 && rooms_links.roomId = ${results[0].roomId}
       ORDER BY rooms_links.lastModified ASC`, (queueErr, queueResults) => {
         if (queueErr) console.log(queueErr);
-        returnObj.queue = queueResults;
+        returnObj.queue = robinSort(queueResults);
         connection.query(`
         SELECT users.userName, links.linkName, links.linkUrl, rooms_links.lastModified, rooms_links.upvotes, rooms_links.downvotes
         FROM rooms_links

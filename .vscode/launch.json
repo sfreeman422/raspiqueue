@@ -7,6 +7,12 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Test RoundRobin",
+      "program": "${workspaceFolder}/roundRobinPOC.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Test Server",
       "program": "${workspaceFolder}/server.js"
     }

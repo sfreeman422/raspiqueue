@@ -54,7 +54,6 @@ class Queue extends Component {
   }
   // Issue: chosenView = 'myQueue' is not functional. Need to determine when to get users queue.
   render() {
-    console.log(this.state);
     return (
       <div className="queue">
         <button onClick={() => this.changeView('queue')}>Queue</button>
@@ -68,9 +67,9 @@ class Queue extends Component {
                 Search: <form onSubmit={this.search}> <input type="text" value={this.state.searchTerm} onChange={this.adjustState} /> <i className="fas fa-search" /> </form>
               </td>
             </tr>
-            {this.state.chosenView === 'queue' ? this.props.queueArr.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}{index === 0 ? <i className="fas fa-headphones" /> : null}</td></tr>) : null}
-            {this.state.chosenView === 'history' ? this.props.historyArr.map((historyItem, index) => <tr key={`history-row-item${index}`}><td>{historyItem.linkName}</td></tr>) : null}
-            {this.state.chosenView === 'myQueue' ? this.props.queueArr.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}</td></tr>) : null}
+            {this.state.chosenView === 'queue' ? this.props.queueArr.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}{index === 0 ? <i className="fas fa-headphones" /> : null}<br /><span id="postedBy">Added by: {queueItem.userName}</span></td></tr>) : null}
+            {this.state.chosenView === 'history' ? this.props.historyArr.map((historyItem, index) => <tr key={`history-row-item${index}`}><td>{historyItem.linkName}<br /><span id="postedBy">Added by: {historyItem.userName}</span></td></tr>) : null}
+            {this.state.chosenView === 'myQueue' ? this.props.queueArr.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}<br /><span id="postedBy">Added by: {queueItem.userName}</span></td></tr>) : null}
             {this.state.chosenView === 'searchResults' ? this.state.searchResults.map((searchItem, index) => <tr key={`search-result-item-${index}`}><SearchResult searchItem={searchItem} addToPlaylist={this.props.addToPlaylist} userId={this.props.userId} roomId={this.props.roomId} /></tr>) : null}
           </tbody>
         </table>
