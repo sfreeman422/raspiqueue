@@ -9,6 +9,10 @@ CREATE TABLE users(
     PRIMARY KEY (userId)
 );
 INSERT INTO users(userName, pass) VALUES('sfreeman422', 'test');
+INSERT INTO users(userName, pass) VALUES('Khornelius', 'test');
+INSERT INTO users(userName, pass) VALUES('SilentStrike90', 'test');
+INSERT INTO users(userName, pass) VALUES('H0rn3t920', 'test');
+INSERT INTO users(userName, pass) VALUES('Romanoman20', 'test');
 
 CREATE TABLE links (
 	linkId BIGINT NOT NULL AUTO_INCREMENT,
@@ -49,11 +53,11 @@ CREATE TABLE rooms_links (
 );
 INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(1, 1, 1, 0, 0, 0);
 INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(2, 1, 1, 0, 0, 0);
-INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(3, 1, 1, 0, 0, 0);
-INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(4, 1, 1, 0, 0, 0);
-INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(5, 1, 1, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(3, 1, 2, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(4, 1, 3, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(5, 1, 2, 0, 0, 0);
 INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(1, 2, 1, 0, 0, 0);
-INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(2, 2, 1, 0, 0, 0);
-INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(3, 2, 1, 0, 0, 0);
-INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(4, 2, 1, 0, 0, 0);
-INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(5, 2, 1, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(2, 2, 3, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(3, 2, 5, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(4, 2, 4, 0, 0, 0);
+INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(5, 2, 3, 0, 0, 0);

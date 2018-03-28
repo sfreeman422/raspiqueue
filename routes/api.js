@@ -41,9 +41,11 @@ router.get('/api/:roomName', (req, res) => {
         ON rooms_links.roomId = rooms.roomId
       WHERE rooms_links.played = 0 && rooms_links.roomId = ${results[0].roomId}
       ORDER BY rooms_links.lastModified ASC`, (queueErr, queueResults) => {
-        if (queueErr) console.log(queueErr);
-        returnObj.queue = robinSort(queueResults);
-        connection.query(`
+          if (queueErr) console.log(queueErr);
+          console.log(queueResults);
+          returnObj.queue = robinSort(queueResults);
+          console.log(returnObj.queue);
+          connection.query(`
         SELECT users.userName, links.linkName, links.linkUrl, rooms_links.lastModified, rooms_links.upvotes, rooms_links.downvotes
         FROM rooms_links
         INNER JOIN links
@@ -52,11 +54,11 @@ router.get('/api/:roomName', (req, res) => {
           ON users.userId = rooms_links.userId
         WHERE rooms_links.played = 1 && rooms_links.roomId = ${results[0].roomId}
         ORDER BY rooms_links.lastModified DESC`, (historyErr, historyResults) => {
-          if (historyErr) console.log(historyErr);
-          returnObj.history = historyResults;
-          res.send(returnObj);
+              if (historyErr) console.log(historyErr);
+              returnObj.history = historyResults;
+              res.send(returnObj);
+            });
         });
-      });
     } else {
       const returnObj = {
         status: 404,
@@ -90,12 +92,12 @@ router.post('/api/played', (req, res) => {
     SET played = 1, upvotes = ${req.body.upvotes}, downvotes= ${req.body.downvotes}
   WHERE linkId = ${req.body.linkId} && roomId = ${req.body.roomId}
   `, (err) => {
-    if (err) console.log(err);
-    res.send({
-      status: 200,
-      message: `Updated video at ID: ${req.body.linkId}`,
+      if (err) console.log(err);
+      res.send({
+        status: 200,
+        message: `Updated video at ID: ${req.body.linkId}`,
+      });
     });
-  });
 });
 
 router.post('/api/addSong', (req, res) => {
@@ -105,51 +107,51 @@ router.post('/api/addSong', (req, res) => {
   // Attempts to insert the link into the links table.
   connection.query(`
   INSERT INTO links (linkName, linkUrl, linkThumbnail) VALUES ('${req.body.title}', '${req.body.video_id}', '${req.body.thumbnail}')`, (addErr) => {
-    if (addErr) {
-      // If we have an error due to a duplicate entry in the links table...
-      if (addErr.code === 'ER_DUP_ENTRY') {
-        // Get the ID of the video that already exists in the links table.
-        connection.query(`
+      if (addErr) {
+        // If we have an error due to a duplicate entry in the links table...
+        if (addErr.code === 'ER_DUP_ENTRY') {
+          // Get the ID of the video that already exists in the links table.
+          connection.query(`
         SELECT linkId
         FROM links
         WHERE linkUrl='${req.body.video_id}'`, (dupErr, dupId) => {
-          // If there was an error getting the ID
-          // of the pre-existing video in the links table, log it.
-          if (dupErr) console.log(dupErr);
-          // If we successfully have the ID,
-          // find it in the rooms_links table and link it to our room.
-          connection.query(`
+              // If there was an error getting the ID
+              // of the pre-existing video in the links table, log it.
+              if (dupErr) console.log(dupErr);
+              // If we successfully have the ID,
+              // find it in the rooms_links table and link it to our room.
+              connection.query(`
           INSERT INTO rooms_links (linkId, roomId, userId, played, upvotes, downvotes) VALUES (${dupId[0].linkId}, ${req.body.roomId}, ${req.body.userId}, 0, 0, 0)`, (roomLinkErr) => {
-            // If we have an error and it is due to a duplicate of a song being added to a room...
-            if (roomLinkErr) {
-              if (roomLinkErr.code === 'ER_DUP_ENTRY') {
-                // Update the row that has both our roomId and linkId to have a played of 0.
-                connection.query(`
+                  // If we have an error and it is due to a duplicate of a song being added to a room...
+                  if (roomLinkErr) {
+                    if (roomLinkErr.code === 'ER_DUP_ENTRY') {
+                      // Update the row that has both our roomId and linkId to have a played of 0.
+                      connection.query(`
                 UPDATE rooms_links
                   SET played = 0
                 WHERE linkId = ${dupId[0].linkId} && roomId=${req.body.roomId}
                 `, (updateRowErr) => {
-                  if (updateRowErr) console.log(updateRowErr);
-                  res.json({
-                    status: 200,
-                    message: 'Added song to queue successfully',
-                  });
+                          if (updateRowErr) console.log(updateRowErr);
+                          res.json({
+                            status: 200,
+                            message: 'Added song to queue successfully',
+                          });
+                        });
+                    }
+                  }
                 });
-              }
-            }
-          });
-        });
-      }
-    } else {
-      connection.query(`
+            });
+        }
+      } else {
+        connection.query(`
       INSERT INTO rooms_links (linkId, roomId, userId, played, upvotes, downvotes) VALUES (LAST_INSERT_ID(), ${req.body.roomId}, ${req.body.userId}, 0, 0, 0)`, (roomLinkErr) => {
-        if (roomLinkErr) console.log(roomLinkErr);
-        res.json({
-          status: 200,
-          message: 'Added song to queue successfully',
-        });
-      });
-    }
-  });
+            if (roomLinkErr) console.log(roomLinkErr);
+            res.json({
+              status: 200,
+              message: 'Added song to queue successfully',
+            });
+          });
+      }
+    });
 });
 module.exports = router;

@@ -1,20 +1,21 @@
-const testCases = require('./roundRobinCases.json').testArr;
+const { testArr } = require('./roundRobinCases.json');
 const roundRobin = require('../../utils/roundRobin.js');
+
 const sortedArr = [
-  { name: 'steve', song: 'Test1' },
-  { name: 'ricky', song: 'Test1' },
-  { name: 'neal', song: 'Test1' },
-  { name: 'geno', song: 'Test1' },
-  { name: 'robbie', song: 'Test1' },
-  { name: 'will', song: 'Test1' },
-  { name: 'steve', song: 'Test2' },
-  { name: 'neal', song: 'Test2' },
-  { name: 'robbie', song: 'Test2' },
-  { name: 'geno', song: 'Test2' },
-  { name: 'steve', song: 'Test3' },
-  { name: 'geno', song: 'Test3' },
-  { name: 'steve', song: 'Test4' },
+  { userName: 'steve', song: 'Test1' },
+  { userName: 'ricky', song: 'Test1' },
+  { userName: 'neal', song: 'Test1' },
+  { userName: 'geno', song: 'Test1' },
+  { userName: 'robbie', song: 'Test1' },
+  { userName: 'will', song: 'Test1' },
+  { userName: 'steve', song: 'Test2' },
+  { userName: 'neal', song: 'Test2' },
+  { userName: 'robbie', song: 'Test2' },
+  { userName: 'geno', song: 'Test2' },
+  { userName: 'steve', song: 'Test3' },
+  { userName: 'geno', song: 'Test3' },
+  { userName: 'steve', song: 'Test4' },
 ];
-test('should sort an array of objects', () => {
-  expect(roundRobin(testCases)).toEqual(expect.arrayContaining(sortedArr));
+test('Should return a round robin sorted array of objects', () => {
+  expect(roundRobin(testArr)).toEqual(expect.arrayContaining(sortedArr));
 });

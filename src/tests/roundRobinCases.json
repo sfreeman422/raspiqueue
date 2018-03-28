@@ -1,55 +1,55 @@
 {
   "testArr": [
-      {
-      "name": "steve",
+    {
+      "userName": "steve",
       "song": "Test1"
     },
     {
-      "name": "steve",
+      "userName": "steve",
       "song": "Test2"
     },
     {
-      "name": "ricky",
+      "userName": "ricky",
       "song": "Test1"
     },
     {
-      "name": "neal",
+      "userName": "neal",
       "song": "Test1"
     },
     {
-      "name": "neal",
+      "userName": "neal",
       "song": "Test2"
     },
     {
-      "name": "geno",
+      "userName": "geno",
       "song": "Test1"
     },
     {
-      "name": "robbie",
+      "userName": "robbie",
       "song": "Test1"
     },
     {
-      "name": "steve",
+      "userName": "steve",
       "song": "Test3"
     },
     {
-      "name": "steve",
+      "userName": "steve",
       "song": "Test4"
     },
     {
-      "name": "robbie",
+      "userName": "robbie",
       "song": "Test2"
     },
     {
-      "name": "geno",
+      "userName": "geno",
       "song": "Test2"
     },
     {
-      "name": "geno",
+      "userName": "geno",
       "song": "Test3"
     },
     {
-      "name": "will",
+      "userName": "will",
       "song": "Test1"
     }
   ]
