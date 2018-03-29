@@ -1,36 +1,42 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import fetch from 'isomorphic-fetch';
 import openSocket from 'socket.io-client';
+import { connect } from 'react-redux';
 import logo from './logo.svg';
 import './App.css';
 import Queue from './Children/Queue/Queue';
 import VideoContent from './Children/VideoContent/VideoContent';
 import Chat from './Children/Chat/Chat';
 import NoRoom from './Children/NoRoom';
-import testData from './testData';
+import * as actions from './actions/actions';
 
 let client;
 
-class App extends Component {
+const mapStateToProps = state => ({
+  roomName: state.roomName,
+  roomErr: state.roomErr,
+  connectedUser: state.connectedUser,
+  loggedInState: state.loggedInUser,
+});
+
+const mapDispatchToProps = dispatch => ({
+  updateRoomName: roomName => dispatch(actions.updateRoomName(roomName)),
+  updateQueue: queueArr => dispatch(actions.updateQueue(queueArr)),
+  updateHistory: historyArr => dispatch(actions.updateHistory(historyArr)),
+  updateRoomId: roomId => dispatch(actions.updateRoomId(roomId)),
+  setRoomError: roomErr => dispatch(actions.setRoomErr(roomErr)),
+});
+
+class ConnectedApp extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      roomName: '',
-      roomErr: '',
-      users: '',
-      connectedUserId: 1, // This is a placeholder. Should be dynamic.
-      loggedInStatus: false,
-      loggedInUser: '',
-      queueArr: testData.queueArr,
-      messageArr: testData.messageArr,
-      historyArr: [],
-    };
     this.markPlayed = this.markPlayed.bind(this);
     this.adjustQueue = this.adjustQueue.bind(this);
     this.addToPlaylist = this.addToPlaylist.bind(this);
     this.updateQueue = this.updateQueue.bind(this);
   }
-  componentWillMount() {
+  componentDidMount() {
     this.updateQueue();
   }
   // Makes a request to the server to make a song as played.
@@ -56,12 +62,10 @@ class App extends Component {
         .then(response => response.json()).then((json) => {
           if (json.status === 200) {
             // Sets state based on results of query.
-            this.setState({
-              roomName: json.roomName,
-              queueArr: json.queue,
-              historyArr: json.history,
-              roomId: json.roomId,
-            });
+            this.props.updateRoomName(json.roomName);
+            this.props.updateQueue(json.queue);
+            this.props.updateHistory(json.history);
+            this.props.updateRoomId(json.roomId);
             // Creates a socket connection for the client.
             client = openSocket();
             // Connects us to the specific name space we are looking for.
@@ -71,9 +75,7 @@ class App extends Component {
             // Tells our client to update the queue when a song is added/removed, etc.
             client.on('updateQueue', () => this.updateQueue());
           } else if (json.status === 404) {
-            this.setState({
-              roomErr: json.message,
-            });
+            this.props.setRoomErr(json.message);
           }
         });
     } else {
@@ -82,12 +84,11 @@ class App extends Component {
         .then(response => response.json()).then((json) => {
           if (json.status === 200) {
             // Sets state based on results of query.
-            this.setState({
-              roomName: json.roomName,
-              queueArr: json.queue,
-              historyArr: json.history,
-              roomId: json.roomId,
-            });
+            // Sets state based on results of query.
+            this.props.updateRoomName(json.roomName);
+            this.props.updateQueue(json.queue);
+            this.props.updateHistory(json.history);
+            this.props.updateRoomId(json.roomId);
             // Creates a socket connection for the client.
             client = openSocket();
             // Connects us to the specific name space we are looking for.
@@ -97,9 +98,7 @@ class App extends Component {
             // Tells our client to update the queue when a song is added/removed, etc.
             client.on('updateQueue', () => this.updateQueue());
           } else if (json.status === 404) {
-            this.setState({
-              roomErr: json.message,
-            });
+            this.props.setRoomErr(json.message);
           }
         });
     }
@@ -133,30 +132,42 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">{this.state.roomName === '' ? 'Welcome to Music Stream' : this.state.roomName}</h1>
+          <h1 className="App-title">{this.props.roomName === '' ? 'Welcome to Music Stream' : this.props.roomName}</h1>
         </header>
-        {this.state.roomErr !== '' ?
+        {this.props.roomErr !== '' ?
           <div className="container">
-            <NoRoom error={this.state.roomErr} />
+            <NoRoom />
           </div> :
           <div className="container">
-            <Queue
-              queueArr={this.state.queueArr}
-              historyArr={this.state.historyArr}
-              addToPlaylist={this.addToPlaylist}
-              roomId={this.state.roomId}
-              userId={this.state.connectedUserId}
-            />
+            <Queue addToPlaylist={this.addToPlaylist} />
             <VideoContent
-              queueArr={this.state.queueArr}
               adjustQueue={this.adjustQueue}
               client={client}
             />
-            <Chat messageArr={this.state.messageArr} />
+            <Chat />
           </div>}
       </div>
     );
   }
 }
 
+const App = connect(mapStateToProps, mapDispatchToProps)(ConnectedApp);
+
+ConnectedApp.propTypes = {
+  roomName: PropTypes.string,
+  roomErr: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.object,
+  ]),
+  updateRoomName: PropTypes.func.isRequired,
+  updateQueue: PropTypes.func.isRequired,
+  updateHistory: PropTypes.func.isRequired,
+  updateRoomId: PropTypes.func.isRequired,
+  setRoomErr: PropTypes.func.isRequired,
+};
+
+ConnectedApp.defaultProps = {
+  roomName: '',
+  roomErr: '',
+};
 export default App;

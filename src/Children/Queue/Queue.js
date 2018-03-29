@@ -1,9 +1,17 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import fetch from 'isomorphic-fetch';
 import SearchResult from './Children/SearchResult';
 
-class Queue extends Component {
+const mapStateToProps = state => ({
+  queue: state.queue,
+  history: state.history,
+  roomId: state.roomId,
+  connectedUser: state.connectedUser,
+});
+
+class ConnectedQueue extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -67,23 +75,31 @@ class Queue extends Component {
                 Search: <form onSubmit={this.search}> <input type="text" value={this.state.searchTerm} onChange={this.adjustState} /> <i className="fas fa-search" /> </form>
               </td>
             </tr>
-            {this.state.chosenView === 'queue' ? this.props.queueArr.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}{index === 0 ? <i className="fas fa-headphones" /> : null}<br /><span id="postedBy">Added by: {queueItem.userName}</span></td></tr>) : null}
-            {this.state.chosenView === 'history' ? this.props.historyArr.map((historyItem, index) => <tr key={`history-row-item${index}`}><td>{historyItem.linkName}<br /><span id="postedBy">Added by: {historyItem.userName}</span></td></tr>) : null}
-            {this.state.chosenView === 'myQueue' ? this.props.queueArr.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}<br /><span id="postedBy">Added by: {queueItem.userName}</span></td></tr>) : null}
-            {this.state.chosenView === 'searchResults' ? this.state.searchResults.map((searchItem, index) => <tr key={`search-result-item-${index}`}><SearchResult searchItem={searchItem} addToPlaylist={this.props.addToPlaylist} userId={this.props.userId} roomId={this.props.roomId} /></tr>) : null}
+            {this.state.chosenView === 'queue' ? this.props.queue.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}{index === 0 ? <i className="fas fa-headphones" /> : null}<br /><span id="postedBy">Added by: {queueItem.userName}</span></td></tr>) : null}
+            {this.state.chosenView === 'history' ? this.props.history.map((historyItem, index) => <tr key={`history-row-item${index}`}><td>{historyItem.linkName}<br /><span id="postedBy">Added by: {historyItem.userName}</span></td></tr>) : null}
+            {this.state.chosenView === 'myQueue' ? this.props.queue.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}<br /><span id="postedBy">Added by: {queueItem.userName}</span></td></tr>) : null}
+            {this.state.chosenView === 'searchResults' ? this.state.searchResults.map((searchItem, index) => <tr key={`search-result-item-${index}`}><SearchResult searchItem={searchItem} addToPlaylist={this.props.addToPlaylist} userId={this.props.connectedUser} roomId={this.props.roomId} /></tr>) : null}
           </tbody>
         </table>
       </div>
     );
   }
 }
+const Queue = connect(mapStateToProps)(ConnectedQueue);
 
 export default Queue;
 
-Queue.propTypes = {
-  queueArr: PropTypes.arrayOf(PropTypes.object).isRequired,
-  historyArr: PropTypes.arrayOf(PropTypes.object).isRequired,
+ConnectedQueue.propTypes = {
+  queue: PropTypes.arrayOf(PropTypes.object),
+  history: PropTypes.arrayOf(PropTypes.object),
   addToPlaylist: PropTypes.func.isRequired,
-  userId: PropTypes.number.isRequired,
-  roomId: PropTypes.number.isRequired,
+  connectedUser: PropTypes.number,
+  roomId: PropTypes.number,
+};
+
+ConnectedQueue.defaultProps = {
+  queue: [],
+  history: [],
+  connectedUser: 0,
+  roomId: 0,
 };

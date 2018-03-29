@@ -42,9 +42,7 @@ router.get('/api/:roomName', (req, res) => {
       WHERE rooms_links.played = 0 && rooms_links.roomId = ${results[0].roomId}
       ORDER BY rooms_links.lastModified ASC`, (queueErr, queueResults) => {
           if (queueErr) console.log(queueErr);
-          console.log(queueResults);
           returnObj.queue = robinSort(queueResults);
-          console.log(returnObj.queue);
           connection.query(`
         SELECT users.userName, links.linkName, links.linkUrl, rooms_links.lastModified, rooms_links.upvotes, rooms_links.downvotes
         FROM rooms_links

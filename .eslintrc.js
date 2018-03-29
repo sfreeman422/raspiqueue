@@ -4,7 +4,7 @@ module.exports = {
         "react",
         "jsx-a11y",
         "import"
-    ], 
+    ],
     "rules": {
         "react/jsx-filename-extension": 0
     }

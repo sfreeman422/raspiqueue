@@ -35,7 +35,7 @@ io.on('connection', (socket) => {
     if (voteInfo.type === 'up') {
       io.emit('upvoteIncrement');
     } io.emit('downvoteIncrement');
-  })
+  });
 });
 
 server.listen(port, (err) => {
