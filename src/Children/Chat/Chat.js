@@ -11,17 +11,25 @@ const mapStateToProps = state => ({
 
 const ConnectedChat = ({ messages }) => (
   <div className="chat">
-    <table>
-      <tbody>
-        {messages.map((message, index) => <tr key={`message-row-${index}`}><td>{message.userId}: {message.data}</td></tr>)}
-        <tr>
-          <td>
-            <input type="text" placeholder="Enter text message here..." />
-            <i className="fas fa-share" />
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div className="message-area">
+      <table>
+        <tbody>
+          {messages.map((message, index) => <tr key={`message-row-${index}`}><td>{message.userId}: {message.message}</td></tr>)}
+        </tbody>
+      </table>
+    </div>
+    <div className="message-input-area">
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <input type="text" placeholder="Enter text message here..." />
+              <i className="fas fa-share" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 );
 

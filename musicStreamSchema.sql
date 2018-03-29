@@ -38,6 +38,28 @@ CREATE TABLE rooms(
 INSERT INTO rooms(roomname) VALUES('lobby');
 INSERT INTO rooms(roomName, adminUser, pass) VALUES('metalboiz', 1, 'test');
 
+CREATE TABLE messages (
+	messageId BIGINT NOT NULL AUTO_INCREMENT,
+	message VARCHAR(500) NOT NULL,
+    userId BIGINT NOT NULL,
+    roomId BIGINT NOT NULL,
+    lastModified TIMESTAMP,
+    PRIMARY KEY (messageId),
+    CONSTRAINT FK_roomId FOREIGN KEY (roomId) REFERENCES rooms(roomId),
+    CONSTRAINT FK_userId FOREIGN KEY (userId) REFERENCES users(userId)
+);
+
+INSERT INTO messages(message, userId, roomId) VALUES ('Welcome to the lobby!', 1, 1);
+INSERT INTO messages(message, userId, roomId) VALUES ('Thanks!', 2, 1);
+INSERT INTO messages(message, userId, roomId) VALUES ('Cool.', 3, 1);
+INSERT INTO messages(message, userId, roomId) VALUES ('We should checkout /join/metalboiz', 4, 1);
+INSERT INTO messages(message, userId, roomId) VALUES ('Good idea, Im going over', 5, 1);
+INSERT INTO messages(message, userId, roomId) VALUES ('This music is to harsh', 1, 1);
+INSERT INTO messages(message, userId, roomId) VALUES ('Yeah wtf', 2, 1);
+INSERT INTO messages(message, userId, roomId) VALUES ('Cool.', 3, 1);
+INSERT INTO messages(message, userId, roomId) VALUES ('Im leaving', 4, 1);
+INSERT INTO messages(message, userId, roomId) VALUES ('Good idea, Im going home', 5, 1);
+
 CREATE TABLE rooms_links (
 	linkId BIGINT,
     roomId BIGINT,
@@ -61,3 +83,21 @@ INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALU
 INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(3, 2, 5, 0, 0, 0);
 INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(4, 2, 4, 0, 0, 0);
 INSERT INTO rooms_links(linkId, roomId, userId, played, upvotes, downvotes) VALUES(5, 2, 3, 0, 0, 0);
+
+CREATE TABLE rooms_messages(
+	messageId BIGINT,
+    roomId BIGINT,
+    CONSTRAINT FK_message_messageId FOREIGN KEY (messageId) REFERENCES messages(messageId),
+    CONSTRAINT FK_message_roomId FOREIGN KEY (roomId) REFERENCES rooms(roomId)
+);
+
+INSERT INTO rooms_messages(messageId, roomId) VALUES (1, 1);
+INSERT INTO rooms_messages(messageId, roomId) VALUES (2, 1);
+INSERT INTO rooms_messages(messageId, roomId) VALUES (3, 1);
+INSERT INTO rooms_messages(messageId, roomId) VALUES (4, 1);
+INSERT INTO rooms_messages(messageId, roomId) VALUES (5, 1);
+INSERT INTO rooms_messages(messageId, roomId) VALUES (6, 2);
+INSERT INTO rooms_messages(messageId, roomId) VALUES (7, 2);
+INSERT INTO rooms_messages(messageId, roomId) VALUES (8, 2);
+INSERT INTO rooms_messages(messageId, roomId) VALUES (9, 2);
+INSERT INTO rooms_messages(messageId, roomId) VALUES (10, 2);

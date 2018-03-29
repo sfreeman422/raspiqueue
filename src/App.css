@@ -28,7 +28,7 @@ table {
   width: 100%;
 }
 
-td, th {
+td, th, .chat > .message-area {
   border: 1px solid #dddddd;
   text-align: left;
   padding: 8px;
@@ -89,6 +89,13 @@ input {
   grid-column-start: col3;
   grid-column-end: right-margin;
   grid-row-start: content-area;
+  height: 90%;
+}
+.message-area {
+  height: 90%;
+}
+.message-input-area {
+  height: 10%;
 }
 .fa-headphones {
   float: right;
