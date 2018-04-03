@@ -24,3 +24,8 @@ export const setRoomErr = roomErr => ({
   type: types.SET_ROOM_ERROR,
   payload: roomErr,
 });
+
+export const updateClient = client => ({
+  type: types.UPDATE_CLIENT,
+  payload: client,
+});

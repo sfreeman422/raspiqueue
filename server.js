@@ -24,17 +24,30 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
   // Emit a connected event to the socket, called connected, with the message 'You are connected'.
   socket.emit('connected', 'You are connected.');
-  // Listen for a songAdded event. Console log when we receive it.
+  // Listen for queue related events.
   socket.on('queueChange', (message) => {
     console.log(message);
-    io.emit('updateQueue');
+    io.emit('queueChanged');
+  });
+  socket.on('markPlayed', (message) => {
+    console.log(message);
+    io.emit('queueChanged');
+  });
+  socket.on('addVideo', (message) => {
+    console.log(message);
+    io.emit('queueChanged');
+  });
+  // Listen for chat related events
+  socket.on('message', (message) => {
+    console.log(message);
+    io.emit('messageReceived');
   });
   // Handles a voting situation.
   // Still need to determine how we will use this and what our source of truth will be.
   socket.on('vote', (voteInfo) => {
     if (voteInfo.type === 'up') {
-      io.emit('upvoteIncrement');
-    } io.emit('downvoteIncrement');
+      io.emit('upvoteIncremented');
+    } io.emit('downvoteIncremented');
   });
 });
 

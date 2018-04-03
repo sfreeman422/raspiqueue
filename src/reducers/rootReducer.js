@@ -7,6 +7,7 @@ const initialState = {
   queue: [],
   messages: [],
   history: [],
+  client: {},
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -35,6 +36,11 @@ const rootReducer = (state = initialState, action) => {
       return {
         ...state,
         userLoc: action.payload,
+      };
+    case 'UPDATE_CLIENT':
+      return {
+        ...state,
+        client: action.payload,
       };
     default:
       return state;

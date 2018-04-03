@@ -1,3 +1,4 @@
+/* eslint class-methods-use-this: 0 */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import fetch from 'isomorphic-fetch';
@@ -11,13 +12,12 @@ import Chat from './Children/Chat/Chat';
 import NoRoom from './Children/NoRoom';
 import * as actions from './actions/actions';
 
-let client;
-
 const mapStateToProps = state => ({
   roomName: state.roomName,
   roomErr: state.roomErr,
   connectedUser: state.connectedUser,
   loggedInState: state.loggedInUser,
+  client: state.client,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -25,6 +25,7 @@ const mapDispatchToProps = dispatch => ({
   updateQueue: queueArr => dispatch(actions.updateQueue(queueArr)),
   updateHistory: historyArr => dispatch(actions.updateHistory(historyArr)),
   updateRoomId: roomId => dispatch(actions.updateRoomId(roomId)),
+  updateClient: client => dispatch(actions.updateClient(client)),
   setRoomError: roomErr => dispatch(actions.setRoomErr(roomErr)),
 });
 
@@ -34,10 +35,39 @@ class ConnectedApp extends Component {
     this.markPlayed = this.markPlayed.bind(this);
     this.adjustQueue = this.adjustQueue.bind(this);
     this.addToPlaylist = this.addToPlaylist.bind(this);
+    this.initializeApp = this.initializeApp.bind(this);
     this.updateQueue = this.updateQueue.bind(this);
   }
   componentDidMount() {
-    this.updateQueue();
+    this.initializeApp();
+  }
+  initializeApp() {
+    let { roomName } = this.props.match.params;
+    if (!roomName) {
+      roomName = 'lobby';
+    }
+    const client = openSocket();
+    client.connect(`/${roomName}`);
+    client.on('queueChanged', () => this.updateQueue(roomName));
+    client.on('messageReceived', () => this.getMessages());
+    this.props.updateClient(client);
+    this.updateQueue(roomName);
+    // this.getMessages(roomName);
+  }
+  updateQueue(roomName) {
+    // Get the roomName, current queue and history queue from MySQL.
+    fetch(`/api/${roomName}`)
+      .then(response => response.json()).then((json) => {
+        if (json.status === 200) {
+          // Sets state based on results of query.
+          this.props.updateRoomName(json.roomName);
+          this.props.updateQueue(json.queue);
+          this.props.updateHistory(json.history);
+          this.props.updateRoomId(json.roomId);
+        } else if (json.status === 404) {
+          this.props.setRoomError(json.message);
+        }
+      });
   }
   // Makes a request to the server to make a song as played.
   // If a song has been played, it will be listed in the historyArr
@@ -51,57 +81,8 @@ class ConnectedApp extends Component {
       },
       body: JSON.stringify(songObj),
     }).then(response => response.json()).then((json) => {
-      client.emit('queueChange', `Played video: ${songObj.title}`);
+      this.props.client.emit('markPlayed', `Played video: ${songObj.linkName}`);
     });
-  }
-  updateQueue() {
-    // If we have a roomName parameter...
-    if (this.props.match.params.roomName !== undefined) {
-      // Get the roomName, current queue and history queue from MySQL.
-      fetch(`/api/${this.props.match.params.roomName}`)
-        .then(response => response.json()).then((json) => {
-          if (json.status === 200) {
-            // Sets state based on results of query.
-            this.props.updateRoomName(json.roomName);
-            this.props.updateQueue(json.queue);
-            this.props.updateHistory(json.history);
-            this.props.updateRoomId(json.roomId);
-            // Creates a socket connection for the client.
-            client = openSocket();
-            // Connects us to the specific name space we are looking for.
-            // This needs work.
-            // How can our users see messages/queue/video info via this socket?
-            client.connect(`/${json.roomName}`);
-            // Tells our client to update the queue when a song is added/removed, etc.
-            client.on('updateQueue', () => this.updateQueue());
-          } else if (json.status === 404) {
-            this.props.setRoomErr(json.message);
-          }
-        });
-    } else {
-      // Get the roomName, current queue and history queue from MySQL.
-      fetch('/api/lobby')
-        .then(response => response.json()).then((json) => {
-          if (json.status === 200) {
-            // Sets state based on results of query.
-            // Sets state based on results of query.
-            this.props.updateRoomName(json.roomName);
-            this.props.updateQueue(json.queue);
-            this.props.updateHistory(json.history);
-            this.props.updateRoomId(json.roomId);
-            // Creates a socket connection for the client.
-            client = openSocket();
-            // Connects us to the specific name space we are looking for.
-            // This needs work.
-            // How can our users see messages/queue/video info via this socket?
-            client.connect(`/${json.roomName}`);
-            // Tells our client to update the queue when a song is added/removed, etc.
-            client.on('updateQueue', () => this.updateQueue());
-          } else if (json.status === 404) {
-            this.props.setRoomErr(json.message);
-          }
-        });
-    }
   }
   addToPlaylist(songObj) {
     fetch('/api/addSong', {
@@ -113,7 +94,7 @@ class ConnectedApp extends Component {
       body: JSON.stringify(songObj),
     }).then(response => response.json()).then((json) => {
       // Lets our server know that we have added a song.
-      client.emit('queueChange', `Added video: ${songObj.title}`);
+      this.props.client.emit('addVideo', `Added video: ${songObj.title}`);
     });
   }
   adjustQueue(songObj, upvotes, downvotes) {
@@ -142,7 +123,6 @@ class ConnectedApp extends Component {
             <Queue addToPlaylist={this.addToPlaylist} />
             <VideoContent
               adjustQueue={this.adjustQueue}
-              client={client}
             />
             <Chat />
           </div>}
@@ -163,7 +143,8 @@ ConnectedApp.propTypes = {
   updateQueue: PropTypes.func.isRequired,
   updateHistory: PropTypes.func.isRequired,
   updateRoomId: PropTypes.func.isRequired,
-  setRoomErr: PropTypes.func.isRequired,
+  setRoomError: PropTypes.func.isRequired,
+  client: PropTypes.object.isRequired,
 };
 
 ConnectedApp.defaultProps = {
