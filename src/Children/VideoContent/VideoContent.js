@@ -3,11 +3,13 @@ import { connect } from 'react-redux';
 import YouTube from 'react-youtube';
 import PropTypes from 'prop-types';
 import ThumbsButton from './Children/ThumbsButton';
+import ClientSocket from '../../ClientSocket';
 
 // Options to interact with the react-youtube component.
 const options = {
   playerVars: {
     autoplay: 1,
+    controls: 0,
   },
 };
 
@@ -21,10 +23,15 @@ class ConnectedVideoContent extends Component {
     this.state = {
       upvotes: 0,
       downvotes: 0,
+      player: {},
     };
     this.upvote = this.upvote.bind(this);
     this.downvote = this.downvote.bind(this);
     this.cleanUp = this.cleanUp.bind(this);
+    this.handleReady = this.handleReady.bind(this);
+    this.trackTime = this.trackTime.bind(this);
+    this.timeSync = this.timeSync.bind(this);
+    this.jumpToSeconds = this.jumpToSeconds.bind(this);
   }
   // Increments the state of the upvotes for the currently playing song.
   upvote() {
@@ -54,6 +61,45 @@ class ConnectedVideoContent extends Component {
       this.downVote(this.props.queue[0].linkUrl);
     }
   }
+
+  handleReady(event) {
+    this.setState({ player: event.target });
+    setInterval(() => this.trackTime(), 100);
+    ClientSocket.client.on('syncWithServer', time => this.timeSync(time));
+  }
+
+  trackTime() {
+    if (this.state.player) {
+      const time = Math.round(this.state.player.getCurrentTime());
+      ClientSocket.client.emit('timeSync', time);
+    }
+  }
+
+  jumpToSeconds(seconds) {
+    this.state.player.seekTo(seconds, true);
+  }
+
+  timeSync(serverTime) {
+    console.log(`Time Sync called with serverTime${serverTime}`);
+    if (this.state.player) {
+      const playerTime = Math.round(this.state.player.getCurrentTime());
+      if (serverTime !== playerTime) {
+        let difference;
+        if (playerTime > serverTime) {
+          difference = playerTime - serverTime;
+          if (difference > 1) {
+            this.jumpToSeconds(playerTime - difference);
+          }
+        } else if (playerTime < serverTime) {
+          difference = serverTime - playerTime;
+          if (difference > 1) {
+            this.jumpToSeconds(playerTime + difference);
+          }
+        }
+      }
+    }
+  }
+
   render() {
     return (
       <div className="video-content-section">
@@ -63,6 +109,7 @@ class ConnectedVideoContent extends Component {
               videoId={this.props.queue[0].linkUrl}
               opts={options}
               onEnd={() => this.cleanUp()}
+              onReady={this.handleReady}
             />
             <ThumbsButton
               type="far fa-thumbs-down"

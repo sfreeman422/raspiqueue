@@ -32,6 +32,7 @@ class ConnectedQueue extends Component {
       chosenView: view,
     });
   }
+
   search(e) {
     e.preventDefault();
     fetch('/api/youtube', {
@@ -49,6 +50,7 @@ class ConnectedQueue extends Component {
         });
       });
   }
+
   adjustState(event) {
     this.setState({
       searchTerm: event.target.value,
@@ -60,6 +62,7 @@ class ConnectedQueue extends Component {
       });
     }
   }
+
   // Issue: chosenView = 'myQueue' is not functional. Need to determine when to get users queue.
   render() {
     return (
@@ -72,12 +75,25 @@ class ConnectedQueue extends Component {
           <tbody>
             <tr>
               <td>
-                Search: <form onSubmit={this.search}> <input type="text" value={this.state.searchTerm} onChange={this.adjustState} /> <i className="fas fa-search" /> </form>
+                <form onSubmit={this.search}>
+                  <input type="text" placeholder="Search for a song..." value={this.state.searchTerm} onChange={this.adjustState} />
+                  <i className="fas fa-search" />
+                </form>
               </td>
             </tr>
             {this.state.chosenView === 'queue' ? this.props.queue.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}{index === 0 ? <i className="fas fa-headphones" /> : null}<br /><span id="postedBy">Added by: {queueItem.userName}</span></td></tr>) : null}
             {this.state.chosenView === 'history' ? this.props.history.map((historyItem, index) => <tr key={`history-row-item${index}`}><td>{historyItem.linkName}<br /><span id="postedBy">Added by: {historyItem.userName}</span></td></tr>) : null}
-            {this.state.chosenView === 'myQueue' ? this.props.queue.map((queueItem, index) => <tr key={`queue-row-item-${index}`}><td>{queueItem.linkName}<br /><span id="postedBy">Added by: {queueItem.userName}</span></td></tr>) : null}
+            {this.state.chosenView === 'myQueue' ?
+              this.props.queue.map((queueItem, index) =>
+                (
+                  <tr key={`queue-row-item-${index}`}>
+                    <td>{queueItem.linkName}<br />
+                      <span id="postedBy">Added by: {queueItem.userName}</span>
+                    </td>
+                  </tr>
+                ))
+              :
+              null}
             {this.state.chosenView === 'searchResults' ? this.state.searchResults.map((searchItem, index) => <tr key={`search-result-item-${index}`}><SearchResult searchItem={searchItem} addToPlaylist={this.props.addToPlaylist} userId={this.props.connectedUser} roomId={this.props.roomId} /></tr>) : null}
           </tbody>
         </table>

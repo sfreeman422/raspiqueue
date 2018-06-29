@@ -1,4 +1,4 @@
-const router = require('./api.js');
+const router = require('./api');
 const fs = require('fs');
 const readline = require('readline');
 const google = require('googleapis');

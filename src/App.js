@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import fetch from 'isomorphic-fetch';
-import openSocket from 'socket.io-client';
 import { connect } from 'react-redux';
 import logo from './logo.svg';
 import './App.css';
@@ -11,6 +10,7 @@ import VideoContent from './Children/VideoContent/VideoContent';
 import Chat from './Children/Chat/Chat';
 import NoRoom from './Children/NoRoom';
 import * as actions from './actions/actions';
+import ClientSocket from './ClientSocket';
 
 const mapStateToProps = state => ({
   roomName: state.roomName,
@@ -38,22 +38,23 @@ class ConnectedApp extends Component {
     this.initializeApp = this.initializeApp.bind(this);
     this.updateQueue = this.updateQueue.bind(this);
   }
+
   componentDidMount() {
     this.initializeApp();
   }
+
   initializeApp() {
     let { roomName } = this.props.match.params;
     if (!roomName) {
       roomName = 'lobby';
     }
-    const client = openSocket();
-    client.connect(`/${roomName}`);
-    client.on('queueChanged', () => this.updateQueue(roomName));
-    client.on('messageReceived', () => this.getMessages());
-    this.props.updateClient(client);
+    ClientSocket.client.connect(`/${roomName}`);
+    ClientSocket.client.on('queueChanged', () => this.updateQueue(roomName));
+    ClientSocket.client.on('messageReceived', () => this.getMessages());
     this.updateQueue(roomName);
     // this.getMessages(roomName);
   }
+
   updateQueue(roomName) {
     // Get the roomName, current queue and history queue from MySQL.
     fetch(`/api/${roomName}`)
@@ -69,6 +70,7 @@ class ConnectedApp extends Component {
         }
       });
   }
+
   // Makes a request to the server to make a song as played.
   // If a song has been played, it will be listed in the historyArr
   // If a song has not yet been played, it will be listed in the queue.
@@ -80,10 +82,11 @@ class ConnectedApp extends Component {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(songObj),
-    }).then(response => response.json()).then((json) => {
-      this.props.client.emit('markPlayed', `Played video: ${songObj.linkName}`);
+    }).then(response => response.json()).then(() => {
+      ClientSocket.client.emit('markPlayed', `Played video: ${songObj.linkName}`);
     });
   }
+
   addToPlaylist(songObj) {
     fetch('/api/addSong', {
       method: 'post',
@@ -92,11 +95,12 @@ class ConnectedApp extends Component {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(songObj),
-    }).then(response => response.json()).then((json) => {
+    }).then(response => response.json()).then(() => {
       // Lets our server know that we have added a song.
-      this.props.client.emit('addVideo', `Added video: ${songObj.title}`);
+      ClientSocket.client.emit('addVideo', `Added video: ${songObj.title}`);
     });
   }
+
   adjustQueue(songObj, upvotes, downvotes) {
     const dbObj = Object.assign(songObj, {});
     // The following three values should be sent to
@@ -108,12 +112,16 @@ class ConnectedApp extends Component {
     dbObj.downvotes += downvotes;
     this.markPlayed(dbObj);
   }
+
   render() {
     return (
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">{this.props.roomName === '' ? 'Welcome to Music Stream' : this.props.roomName}</h1>
+          <input className="user-login-box" type="text" placeholder="Username" /> <br />
+          <input className="user-password-box" type="password" placeholder="******" /> <br />
+          <button>Log In</button>
         </header>
         {this.props.roomErr !== '' ?
           <div className="container">
@@ -144,7 +152,6 @@ ConnectedApp.propTypes = {
   updateHistory: PropTypes.func.isRequired,
   updateRoomId: PropTypes.func.isRequired,
   setRoomError: PropTypes.func.isRequired,
-  client: PropTypes.object.isRequired,
 };
 
 ConnectedApp.defaultProps = {
