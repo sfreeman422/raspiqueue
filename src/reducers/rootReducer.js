@@ -2,7 +2,7 @@ const initialState = {
   roomName: '',
   roomId: '',
   roomErr: '',
-  connectedUser: 1, // Placeholder! Will need to be determined once auth is included.
+  user: '', // Placeholder! Will need to be determined once auth is included.
   loggedInState: false,
   queue: [],
   messages: [],
@@ -41,6 +41,11 @@ const rootReducer = (state = initialState, action) => {
       return {
         ...state,
         client: action.payload,
+      };
+    case 'SET_USER':
+      return {
+        ...state,
+        user: action.payload,
       };
     default:
       return state;

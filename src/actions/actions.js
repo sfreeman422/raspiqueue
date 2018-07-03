@@ -29,3 +29,8 @@ export const updateClient = client => ({
   type: types.UPDATE_CLIENT,
   payload: client,
 });
+
+export const setUser = user => ({
+  type: types.SET_USER,
+  payload: user,
+});

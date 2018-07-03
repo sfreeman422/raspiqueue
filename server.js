@@ -4,9 +4,11 @@ const bodyParser = require('body-parser');
 const apiRoutes = require('./routes/api');
 const youtube = require('./routes/youtube');
 const auth = require('./routes/auth');
+const connection = require('./db/database');
 
 const port = process.env.PORT || 3000;
 const app = express();
+
 
 app.use(express.static(path.join(`${__dirname}/public`)));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -24,9 +26,37 @@ app.get('/', (req, res) => {
 });
 
 let LEADING_TIME = 0;
+
 io.sockets.on('connection', (socket) => {
-  // Emit a connected event to the socket, called connected, with the message 'You are connected'.
-  socket.emit('connected', 'You are connected.');
+  const shittyNouns = ['Guy', 'Cat', 'Car', 'Chicken', 'Clown', 'Pearl', 'Son', 'Father'];
+  const shittyAdjectives = ['Beautiful', 'Flaming', 'Hungry', 'Upset', 'Angry', 'Happy', 'Whatever'];
+
+  const userName = shittyAdjectives[Math.floor(Math.random() * Math.floor(shittyAdjectives.length - 1))] + shittyNouns[Math.floor(Math.random() * Math.floor(shittyNouns.length - 1))];
+
+  connection.query(`INSERT INTO users (userName, pass, email, isPublic, isInUse) VALUES ('${userName}', 'fakepassword', '${userName}@fake.com', true, true)`, (error, results) => {
+    if (error) {
+      console.log('MYSQL Error on inserting temp user...');
+      console.log(error);
+      console.log('sending back other random userName...');
+      connection.query('SELECT * FROM users WHERE isPublic = true', (publicERr, publicResult) => {
+        if (publicErr) {
+          console.log(publicErr);
+        } else {
+          socket.emit('connected', { userId: publicResult.insertId });
+        }
+      });
+    } else {
+      console.log(results.insertId);
+      // Emit a connected event to the socket, called connected, with the message 'You are connected'.
+      socket.emit('connected', { userId: results.insertId });
+      console.log('Successfully added temp user to the DB');
+    }
+  });
+
+  socket.on('disconnect', (user) => {
+    console.log(`User ${user} disconnected!`);
+  });
+
   // Listen for queue related events.
   socket.on('queueChange', (message) => {
     console.log(message);
@@ -36,6 +66,7 @@ io.sockets.on('connection', (socket) => {
   socket.on('markPlayed', (message) => {
     console.log(message);
     LEADING_TIME = 0;
+    io.emit('syncWithServer', LEADING_TIME);
     io.emit('queueChanged');
   });
 

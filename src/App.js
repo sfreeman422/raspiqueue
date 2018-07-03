@@ -15,7 +15,7 @@ import ClientSocket from './ClientSocket';
 const mapStateToProps = state => ({
   roomName: state.roomName,
   roomErr: state.roomErr,
-  connectedUser: state.connectedUser,
+  user: state.user,
   loggedInState: state.loggedInUser,
   client: state.client,
 });
@@ -27,6 +27,7 @@ const mapDispatchToProps = dispatch => ({
   updateRoomId: roomId => dispatch(actions.updateRoomId(roomId)),
   updateClient: client => dispatch(actions.updateClient(client)),
   setRoomError: roomErr => dispatch(actions.setRoomErr(roomErr)),
+  setUser: user => dispatch(actions.setUser(user)),
 });
 
 class ConnectedApp extends Component {
@@ -43,12 +44,20 @@ class ConnectedApp extends Component {
     this.initializeApp();
   }
 
+  componentWillUnmount() {
+    ClientSocket.client.emit('disconnect', this.props.user);
+  }
+
   initializeApp() {
     let { roomName } = this.props.match.params;
     if (!roomName) {
       roomName = 'lobby';
     }
     ClientSocket.client.connect(`/${roomName}`);
+    ClientSocket.client.on('connected', (userObj) => {
+      console.log(userObj);
+      this.props.setUser(userObj.userId);
+    });
     ClientSocket.client.on('queueChanged', () => this.updateQueue(roomName));
     ClientSocket.client.on('messageReceived', () => this.getMessages());
     this.updateQueue(roomName);
@@ -114,6 +123,7 @@ class ConnectedApp extends Component {
   }
 
   render() {
+    console.log(this.props);
     return (
       <div className="App">
         <header className="App-header">

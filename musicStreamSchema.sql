@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS musicStream;
+
 CREATE DATABASE musicStream;
 
 use musicStream;
@@ -5,14 +7,18 @@ use musicStream;
 CREATE TABLE users(
 	userId BIGINT NOT NULL AUTO_INCREMENT,
     userName VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
     pass VARCHAR(50) NOT NULL,
+    isPublic bool NOT NULL,
+    isInUse bool NOT NULL,
     PRIMARY KEY (userId)
 );
-INSERT INTO users(userName, pass) VALUES('sfreeman422', 'test');
-INSERT INTO users(userName, pass) VALUES('Khornelius', 'test');
-INSERT INTO users(userName, pass) VALUES('SilentStrike90', 'test');
-INSERT INTO users(userName, pass) VALUES('H0rn3t920', 'test');
-INSERT INTO users(userName, pass) VALUES('Romanoman20', 'test');
+
+INSERT INTO users(userName, email, pass, isPublic, isInUse) VALUES('sfreeman422', 'sfreeman422@gmail.com', 'test', false, false);
+INSERT INTO users(userName, email, pass, isPublic, isInUse) VALUES('Khornelius', 'neal@neal.com', 'test', false, true);
+INSERT INTO users(userName, email, pass, isPublic, isInUse) VALUES('SilentStrike90', 'robbie@robbie.com', 'test', false, false);
+INSERT INTO users(userName, email, pass, isPublic, isInUse) VALUES('H0rn3t920', 'will@will.com', 'test', false, false);
+INSERT INTO users(userName, email, pass, isPublic, isInUse) VALUES('Romanoman20', 'rick@rick.com', 'test', false, false);
 
 CREATE TABLE links (
 	linkId BIGINT NOT NULL AUTO_INCREMENT,

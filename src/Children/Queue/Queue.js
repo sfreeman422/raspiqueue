@@ -8,7 +8,7 @@ const mapStateToProps = state => ({
   queue: state.queue,
   history: state.history,
   roomId: state.roomId,
-  connectedUser: state.connectedUser,
+  user: state.user,
 });
 
 class ConnectedQueue extends Component {
@@ -65,6 +65,7 @@ class ConnectedQueue extends Component {
 
   // Issue: chosenView = 'myQueue' is not functional. Need to determine when to get users queue.
   render() {
+    console.log(this.props.queue);
     return (
       <div className="queue">
         <button onClick={() => this.changeView('queue')}>Queue</button>
@@ -94,7 +95,7 @@ class ConnectedQueue extends Component {
                 ))
               :
               null}
-            {this.state.chosenView === 'searchResults' ? this.state.searchResults.map((searchItem, index) => <tr key={`search-result-item-${index}`}><SearchResult searchItem={searchItem} addToPlaylist={this.props.addToPlaylist} userId={this.props.connectedUser} roomId={this.props.roomId} /></tr>) : null}
+            {this.state.chosenView === 'searchResults' ? this.state.searchResults.map((searchItem, index) => <tr key={`search-result-item-${index}`}><SearchResult searchItem={searchItem} addToPlaylist={this.props.addToPlaylist} userId={this.props.user} roomId={this.props.roomId} /></tr>) : null}
           </tbody>
         </table>
       </div>
@@ -109,13 +110,13 @@ ConnectedQueue.propTypes = {
   queue: PropTypes.arrayOf(PropTypes.object),
   history: PropTypes.arrayOf(PropTypes.object),
   addToPlaylist: PropTypes.func.isRequired,
-  connectedUser: PropTypes.number,
+  user: PropTypes.number,
   roomId: PropTypes.number,
 };
 
 ConnectedQueue.defaultProps = {
   queue: [],
   history: [],
-  connectedUser: 0,
+  user: 0,
   roomId: 0,
 };

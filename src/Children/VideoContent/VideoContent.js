@@ -10,6 +10,10 @@ const options = {
   playerVars: {
     autoplay: 1,
     controls: 0,
+    disablekb: 1,
+    iv_load_policy: 3,
+    rel: 0,
+    showinfo: 0,
   },
 };
 

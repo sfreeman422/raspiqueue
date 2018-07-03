@@ -87,6 +87,11 @@ router.post('/api/played', (req, res) => {
   });
 });
 
+router.post('/api/addTempUser', (req, res) => {
+  connection.query(`INSERT INTO users (userName, pass) VALUES ('${req.body.userName}', 'fakepassword')`);
+  res.send('done');
+});
+
 router.post('/api/addSong', (req, res) => {
   // Removes apostrophe characters from the title so that it does not mess up our sql syntax.
   req.body.title = req.body.title.replace(/'/g, '');
@@ -141,4 +146,5 @@ router.post('/api/addSong', (req, res) => {
     }
   });
 });
+
 module.exports = router;
