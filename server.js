@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fetch = require('node-fetch');
 const bodyParser = require('body-parser');
 const apiRoutes = require('./routes/api');
 const youtube = require('./routes/youtube');
@@ -30,31 +31,42 @@ let LEADING_TIME = 0;
 io.sockets.on('connection', (socket) => {
   const shittyNouns = ['Guy', 'Cat', 'Car', 'Chicken', 'Clown', 'Pearl', 'Son', 'Father'];
   const shittyAdjectives = ['Beautiful', 'Flaming', 'Hungry', 'Upset', 'Angry', 'Happy', 'Whatever'];
+  // Use this link, including the API key
+  // In order to get random nouns/adjectives for user account creation.
+  // https://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=adjective&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key=YOURAPIKEY
+  const user = {
+    userName: shittyAdjectives[Math.floor(Math.random() * Math.floor(shittyAdjectives.length - 1))] + shittyNouns[Math.floor(Math.random() * Math.floor(shittyNouns.length - 1))],
+    userId: undefined,
+  };
 
-  const userName = shittyAdjectives[Math.floor(Math.random() * Math.floor(shittyAdjectives.length - 1))] + shittyNouns[Math.floor(Math.random() * Math.floor(shittyNouns.length - 1))];
-
-  connection.query(`INSERT INTO users (userName, pass, email, isPublic, isInUse) VALUES ('${userName}', 'fakepassword', '${userName}@fake.com', true, true)`, (error, results) => {
+  connection.query(`INSERT INTO users (userName, pass, email, isPublic, isInUse) VALUES ('${user.userName}', 'fakepassword', '${user.userName}@fake.com', true, true)`, (error, results) => {
     if (error) {
       console.log('MYSQL Error on inserting temp user...');
-      console.log(error);
-      console.log('sending back other random userName...');
-      connection.query('SELECT * FROM users WHERE isPublic = true', (publicERr, publicResult) => {
+      console.log('sending back other random, public userId...');
+      connection.query('SELECT * FROM users WHERE isPublic = true AND isInUse = false', (publicErr, publicResult) => {
         if (publicErr) {
-          console.log(publicErr);
+          console.error(publicErr);
         } else {
-          socket.emit('connected', { userId: publicResult.insertId });
+          console.log('Sending back user: ', publicResult[0]);
+          user.userId = publicResult[0].userId;
+          socket.emit('connected', user);
         }
       });
     } else {
-      console.log(results.insertId);
-      // Emit a connected event to the socket, called connected, with the message 'You are connected'.
-      socket.emit('connected', { userId: results.insertId });
+      user.userId = results.insertId;
+      socket.emit('connected', user);
       console.log('Successfully added temp user to the DB');
     }
   });
 
-  socket.on('disconnect', (user) => {
-    console.log(`User ${user} disconnected!`);
+  socket.on('disconnect', () => {
+    console.log(`User ${user.userName} disconnected!`);
+    if (user.userId) {
+      connection.query(`UPDATE users SET isInUse = false WHERE userId = ${user.userId}`, (err) => {
+        if (err) console.log(err);
+        else console.log(`Successfully added user: ${user.userName} back to the available public IDs`);
+      });
+    }
   });
 
   // Listen for queue related events.

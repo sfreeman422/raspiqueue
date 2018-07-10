@@ -129,9 +129,7 @@ class ConnectedApp extends Component {
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">{this.props.roomName === '' ? 'Welcome to Music Stream' : this.props.roomName}</h1>
-          <input className="user-login-box" type="text" placeholder="Username" /> <br />
-          <input className="user-password-box" type="password" placeholder="******" /> <br />
-          <button>Log In</button>
+          <h2>You are logged in as {this.props.user}</h2>
         </header>
         {this.props.roomErr !== '' ?
           <div className="container">
