@@ -26,9 +26,8 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/public/index.html'));
 });
 
-let LEADING_TIME = 0;
-
 io.sockets.on('connection', (socket) => {
+  let LEADING_TIME = 0;
   const shittyNouns = ['Guy', 'Cat', 'Car', 'Chicken', 'Clown', 'Pearl', 'Son', 'Father'];
   const shittyAdjectives = ['Beautiful', 'Flaming', 'Hungry', 'Upset', 'Angry', 'Happy', 'Whatever'];
   // Use this link, including the API key
@@ -47,8 +46,10 @@ io.sockets.on('connection', (socket) => {
         if (publicErr) {
           console.error(publicErr);
         } else {
+          console.log('Received all available users as ', publicResult);
           console.log('Sending back user: ', publicResult[0]);
           user.userId = publicResult[0].userId;
+          user.userName = publicResult[0].userName;
           socket.emit('connected', user);
         }
       });
