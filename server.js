@@ -114,8 +114,8 @@ io.sockets.on('connection', async (socket) => {
   socket.on('timeSync', (time) => {
     if (time > LEADING_TIME) {
       LEADING_TIME = time;
-      io.emit('syncWithServer', LEADING_TIME);
     }
+    io.emit('syncWithServer', LEADING_TIME);
   });
 });
 
