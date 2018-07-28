@@ -80,27 +80,23 @@ io.sockets.on('connection', async (socket) => {
   });
 
   // Listen for queue related events.
-  socket.on('queueChange', (message) => {
-    console.log(message);
+  socket.on('queueChange', () => {
     io.emit('queueChanged');
   });
 
-  socket.on('markPlayed', (message) => {
-    console.log(message);
+  socket.on('markPlayed', () => {
     LEADING_TIME = 0;
     io.emit('syncWithServer', LEADING_TIME);
     io.emit('queueChanged');
   });
 
-  socket.on('addVideo', (message) => {
-    console.log(message);
+  socket.on('addVideo', () => {
     io.emit('queueChanged');
   });
 
   // Listen for chat related events
   socket.on('message', (message) => {
-    console.log(message);
-    io.emit('messageReceived');
+    io.emit('messageReceived', message);
   });
 
   // Handles a voting situation.

@@ -42,6 +42,11 @@ const rootReducer = (state = initialState, action) => {
         ...state,
         client: action.payload,
       };
+    case 'UPDATE_MESSAGES':
+      return {
+        ...state,
+        messages: [...state.messages, action.payload],
+      };
     case 'SET_USER':
       return {
         ...state,

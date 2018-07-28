@@ -28,6 +28,7 @@ const mapDispatchToProps = dispatch => ({
   updateClient: client => dispatch(actions.updateClient(client)),
   setRoomError: roomErr => dispatch(actions.setRoomErr(roomErr)),
   setUser: user => dispatch(actions.setUser(user)),
+  updateMessages: message => dispatch(actions.updateMessages(message)),
 });
 
 class ConnectedApp extends Component {
@@ -38,6 +39,7 @@ class ConnectedApp extends Component {
     this.addToPlaylist = this.addToPlaylist.bind(this);
     this.initializeApp = this.initializeApp.bind(this);
     this.updateQueue = this.updateQueue.bind(this);
+    this.sendMessage = this.sendMessage.bind(this);
   }
 
   componentDidMount() {
@@ -58,9 +60,10 @@ class ConnectedApp extends Component {
       this.props.setUser(userObj);
     });
     ClientSocket.client.on('queueChanged', () => this.updateQueue(roomName));
-    ClientSocket.client.on('messageReceived', () => this.getMessages());
+    ClientSocket.client.on('messageReceived', (message) => {
+      this.props.updateMessages(message);
+    });
     this.updateQueue(roomName);
-    // this.getMessages(roomName);
   }
 
   updateQueue(roomName) {
@@ -109,6 +112,10 @@ class ConnectedApp extends Component {
     });
   }
 
+  sendMessage(message) {
+    ClientSocket.client.emit('message', { userId: this.props.user.userId, userName: this.props.user.userName, message });
+  }
+
   adjustQueue(songObj, upvotes, downvotes) {
     const dbObj = Object.assign(songObj, {});
     // The following three values should be sent to
@@ -139,7 +146,7 @@ class ConnectedApp extends Component {
             <VideoContent
               adjustQueue={this.adjustQueue}
             />
-            <Chat />
+            <Chat sendMessage={this.sendMessage} />
           </div>}
       </div>
     );
@@ -159,6 +166,8 @@ ConnectedApp.propTypes = {
   updateHistory: PropTypes.func.isRequired,
   updateRoomId: PropTypes.func.isRequired,
   setRoomError: PropTypes.func.isRequired,
+  setUser: PropTypes.func.isRequired,
+  updateMessages: PropTypes.func.isRequired,
 };
 
 ConnectedApp.defaultProps = {
