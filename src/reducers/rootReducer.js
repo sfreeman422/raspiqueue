@@ -2,7 +2,7 @@ const initialState = {
   roomName: '',
   roomId: '',
   roomErr: '',
-  user: '', // Placeholder! Will need to be determined once auth is included.
+  user: {}, // Placeholder! Will need to be determined once auth is included.
   loggedInState: false,
   queue: [],
   messages: [],

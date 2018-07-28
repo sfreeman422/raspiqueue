@@ -7,6 +7,8 @@ const youtube = require('./routes/youtube');
 const auth = require('./routes/auth');
 const connection = require('./db/database');
 
+const wordnikApiKey = process.env.wordnikApi;
+
 const port = process.env.PORT || 3000;
 const app = express();
 
@@ -26,21 +28,28 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '/public/index.html'));
 });
 
-io.sockets.on('connection', (socket) => {
+async function getRandomUserName() {
+  const randomAdj = await fetch(`https://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=adjective&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key=${wordnikApiKey}`)
+    .then(res => res.json())
+    .then(adj => adj.word);
+  const randomNoun = await fetch(`https://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=noun&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key=${wordnikApiKey}`)
+    .then(res => res.json())
+    .then(noun => noun.word);
+  const userName = randomAdj.charAt(0).toUpperCase() + randomAdj.slice(1) + randomNoun.charAt(0).toUpperCase() + randomNoun.slice(1);
+  return userName;
+}
+
+io.sockets.on('connection', async (socket) => {
   let LEADING_TIME = 0;
-  const shittyNouns = ['Guy', 'Cat', 'Car', 'Chicken', 'Clown', 'Pearl', 'Son', 'Father'];
-  const shittyAdjectives = ['Beautiful', 'Flaming', 'Hungry', 'Upset', 'Angry', 'Happy', 'Whatever'];
-  // Use this link, including the API key
-  // In order to get random nouns/adjectives for user account creation.
-  // https://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=adjective&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key=YOURAPIKEY
+  const randomUserName = await getRandomUserName();
   const user = {
-    userName: shittyAdjectives[Math.floor(Math.random() * Math.floor(shittyAdjectives.length - 1))] + shittyNouns[Math.floor(Math.random() * Math.floor(shittyNouns.length - 1))],
+    userName: randomUserName,
     userId: undefined,
   };
 
   connection.query(`INSERT INTO users (userName, pass, email, isPublic, isInUse) VALUES ('${user.userName}', 'fakepassword', '${user.userName}@fake.com', true, true)`, (error, results) => {
     if (error) {
-      console.log('MYSQL Error on inserting temp user...');
+      console.log(`MYSQL Error on inserting temp user: ${user.userName}`);
       console.log('sending back other random, public userId...');
       connection.query('SELECT * FROM users WHERE isPublic = true AND isInUse = false', (publicErr, publicResult) => {
         if (publicErr) {
@@ -56,7 +65,7 @@ io.sockets.on('connection', (socket) => {
     } else {
       user.userId = results.insertId;
       socket.emit('connected', user);
-      console.log('Successfully added temp user to the DB');
+      console.log(`Successfully added temp user to the DB: ${user.userName}`);
     }
   });
 

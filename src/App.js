@@ -55,8 +55,7 @@ class ConnectedApp extends Component {
     }
     ClientSocket.client.connect(`/${roomName}`);
     ClientSocket.client.on('connected', (userObj) => {
-      console.log(userObj);
-      this.props.setUser(userObj.userId);
+      this.props.setUser(userObj);
     });
     ClientSocket.client.on('queueChanged', () => this.updateQueue(roomName));
     ClientSocket.client.on('messageReceived', () => this.getMessages());
@@ -129,7 +128,7 @@ class ConnectedApp extends Component {
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">{this.props.roomName === '' ? 'Welcome to Music Stream' : this.props.roomName}</h1>
-          <h2>You are logged in as {this.props.user}</h2>
+          <h2>You are logged in as {this.props.user.userName}</h2>
         </header>
         {this.props.roomErr !== '' ?
           <div className="container">
