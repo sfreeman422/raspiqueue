@@ -13,11 +13,20 @@ class ConnectedChat extends Component {
       message: '',
     };
     this.handleUserMessage = this.handleUserMessage.bind(this);
+    this.sendMessage = this.sendMessage.bind(this);
   }
 
   handleUserMessage(event) {
     this.setState({
       message: event.target.value,
+    });
+  }
+
+  sendMessage(event) {
+    event.preventDefault();
+    this.props.sendMessage(this.state.message);
+    this.setState({
+      message: '',
     });
   }
 
@@ -36,8 +45,15 @@ class ConnectedChat extends Component {
             <tbody>
               <tr>
                 <td>
-                  <input type="text" placeholder="Enter text message here..." value={this.state.message} onChange={this.handleUserMessage} />
-                  <button onClick={() => this.props.sendMessage(this.state.message)}>Send</button>
+                  <form onSubmit={this.sendMessage}>
+                    <input
+                      type="text"
+                      placeholder="Enter text message here..."
+                      value={this.state.message}
+                      onChange={this.handleUserMessage}
+                    />
+                    <button type="submit">Send</button>
+                  </form>
                 </td>
               </tr>
             </tbody>
