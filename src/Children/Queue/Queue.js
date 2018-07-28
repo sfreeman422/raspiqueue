@@ -95,7 +95,7 @@ class ConnectedQueue extends Component {
                 ))
               :
               null}
-            {this.state.chosenView === 'searchResults' ? this.state.searchResults.map((searchItem, index) => <tr key={`search-result-item-${index}`}><SearchResult searchItem={searchItem} addToPlaylist={this.props.addToPlaylist} userId={this.props.user} roomId={this.props.roomId} /></tr>) : null}
+            {this.state.chosenView === 'searchResults' ? this.state.searchResults.map((searchItem, index) => <tr key={`search-result-item-${index}`}><SearchResult searchItem={searchItem} addToPlaylist={this.props.addToPlaylist} userId={this.props.user.userId} roomId={this.props.roomId} /></tr>) : null}
           </tbody>
         </table>
       </div>
