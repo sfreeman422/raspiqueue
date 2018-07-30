@@ -134,7 +134,7 @@ class ConnectedApp extends Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">{this.props.roomName === '' ? 'Welcome to Music Stream' : this.props.roomName}</h1>
+          <h1>{this.props.roomName === '' ? 'Welcome to Music Stream' : this.props.roomName}</h1>
           <h2>You are logged in as {this.props.user.userName}</h2>
         </header>
         {this.props.roomErr !== '' ?
