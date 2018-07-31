@@ -19,40 +19,14 @@ class ConnectedQueue extends Component {
       chosenView: 'queue',
       searchTerm: '',
       searchResults: [],
+      isSearching: false,
     };
     this.changeView = this.changeView.bind(this);
     this.search = this.search.bind(this);
-    this.adjustState = this.adjustState.bind(this);
-  }
-  // Adjusts the view of the component to show queue, history or myQueue.
-  // Queue - Shows the current queue of songs. (Functional)
-  // History  - Shows the songs that have been played. (Functional)
-  // MyQueue - Shows the songs that a user has personally queued. (Not Functional)
-  changeView(view) {
-    this.setState({
-      chosenView: view,
-    });
+    this.onSearchTermChange = this.onSearchTermChange.bind(this);
   }
 
-  search(e) {
-    e.preventDefault();
-    fetch('/api/youtube', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: this.state.searchTerm,
-      }),
-    })
-      .then(res => res.json())
-      .then((json) => {
-        this.setState({
-          searchResults: json,
-          chosenView: 'searchResults',
-        });
-      });
-  }
-
-  adjustState(event) {
+  onSearchTermChange(event) {
     this.setState({
       searchTerm: event.target.value,
     });
@@ -64,12 +38,41 @@ class ConnectedQueue extends Component {
     }
   }
 
+  search(e) {
+    e.preventDefault();
+    this.setState({ isSearching: true, chosenView: 'searchResults' });
+    fetch('/api/youtube', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: this.state.searchTerm,
+      }),
+    })
+      .then(res => res.json())
+      .then((json) => {
+        this.setState({
+          searchResults: json,
+          isSearching: false,
+        });
+      });
+  }
+
+  // Adjusts the view of the component to show queue, history or myQueue.
+  // Queue - Shows the current queue of songs. (Functional)
+  // History  - Shows the songs that have been played. (Functional)
+  // MyQueue - Shows the songs that a user has personally queued. (Not Functional)
+  changeView(view) {
+    this.setState({
+      chosenView: view,
+    });
+  }
+
   render() {
     return (
       <div className="queue">
         <div className="view-buttons">
           <form onSubmit={this.search}>
-            <input type="text" placeholder="Search for a song..." value={this.state.searchTerm} onChange={this.adjustState} />
+            <input type="text" placeholder="Search for a song..." value={this.state.searchTerm} onChange={this.onSearchTermChange} />
             <i className="fas fa-search" />
           </form>
           <button onClick={() => this.changeView('queue')}>Queue</button>
@@ -95,7 +98,17 @@ class ConnectedQueue extends Component {
                 ))
               :
               null}
-              {this.state.chosenView === 'searchResults' ? this.state.searchResults.map((searchItem, index) => <tr key={`search-result-item-${index}`}><SearchResult searchItem={searchItem} addToPlaylist={this.props.addToPlaylist} userId={this.props.user.userId} roomId={this.props.roomId} /></tr>) : null}
+              {this.state.chosenView === 'searchResults' ?
+              this.state.searchResults
+                .map((searchItem, index) => (
+                  <tr key={`search-result-item-${index}`}>
+                    <SearchResult
+                      searchItem={searchItem}
+                      addToPlaylist={this.props.addToPlaylist}
+                      userId={this.props.user.userId}
+                      roomId={this.props.roomId}
+                    />
+                  </tr>)) : null}
             </tbody>
           </table>
         </div>
