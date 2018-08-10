@@ -9,7 +9,7 @@ const mapStateToProps = state => ({
 
 const ConnectedSearchResults = ({ searchResults }) => (
   <React.Fragment>
-    {searchResults
+    {searchResults ? searchResults
           .map((searchItem, index) => (
             <tr key={`search-result-item-${index}`}>
               <SearchResult
@@ -18,7 +18,7 @@ const ConnectedSearchResults = ({ searchResults }) => (
                 userId={this.props.user.userId}
                 roomId={this.props.roomId}
               />
-            </tr>))}
+            </tr>)) : <tr><span>You haven't search anything yet!</span></tr>}
   </React.Fragment>
 );
 
