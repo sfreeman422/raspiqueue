@@ -69,14 +69,19 @@ class ConnectedVideoContent extends Component {
 
   handleReady(event) {
     this.setState({ player: event.target });
+    console.debug('video is ready');
     setInterval(() => this.trackTime(), 100);
     ClientSocket.client.on('syncWithServer', time => this.timeSync(time));
   }
 
   trackTime() {
+    console.debug('attempting to track time');
     if (this.state.player) {
+      console.debug('tracking time and emiting time sync event');
       const time = Math.round(this.state.player.getCurrentTime());
       ClientSocket.client.emit('timeSync', time);
+    } else {
+      console.debug('unable to track time because player is not ready');
     }
   }
 
@@ -89,15 +94,17 @@ class ConnectedVideoContent extends Component {
     if (this.state.player) {
       const playerTime = Math.round(this.state.player.getCurrentTime());
       if (serverTime !== playerTime) {
-        let difference;
+        let difference = serverTime - playerTime;
+        // If player is ahead...
         if (playerTime > serverTime) {
           difference = playerTime - serverTime;
-          if (difference > 1) {
-            this.jumpToSeconds(playerTime - difference);
+          // And the difference is more than one second.
+          if (difference > 2) {
+            ClientSocket.client.emit('timeSync', playerTime);
           }
         } else if (playerTime < serverTime) {
           difference = serverTime - playerTime;
-          if (difference > 1) {
+          if (difference > 2) {
             this.jumpToSeconds(playerTime + difference);
           }
         }

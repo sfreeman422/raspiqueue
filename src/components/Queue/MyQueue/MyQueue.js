@@ -15,8 +15,7 @@ const ConnectedMyQueue = ({ removeFromQueue, queue, user }) => {
             .filter(queueItem => queueItem.userName === user.userName)
             .map((queueItem, index) => (
               <tr key={`queue-row-item-${index}`}>
-                <td>{queueItem.linkName}{index === 0 ?
-                  <i className="fas fa-headphones" /> : null}
+                <td>{queueItem.linkName}
                   <br /><span id="postedBy">Added by: {queueItem.userName}</span> <span onClick={() => removeFromQueue(queueItem)}>x</span>
                 </td>
               </tr>))}
