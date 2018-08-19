@@ -70,6 +70,7 @@ class ConnectedApp extends Component {
     // Get the roomName, current queue and history queue from MySQL.
     fetch(`/api/${roomName}`)
       .then(response => response.json()).then((json) => {
+        console.debug('Updating queue with', json);
         if (json.status === 200) {
           // Sets state based on results of query.
           this.props.updateRoomName(json.roomName);
@@ -93,9 +94,24 @@ class ConnectedApp extends Component {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(songObj),
-    }).then(response => response.json()).then(() => {
-      ClientSocket.client.emit('markPlayed', `Played video: ${songObj.linkName}`);
-    });
+    }).then(response => response.json())
+      .then(() => {
+        ClientSocket.client.emit('markPlayed', `Played video: ${songObj.linkName}`);
+      });
+  }
+
+  removeFromQueue(songObj) {
+    fetch('/api/remove', {
+      method: 'post',
+      headers: {
+        Accept: 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(songObj),
+    }).then(response => response.json())
+      .then((res) => {
+        ClientSocket.client.emit('queueChange');
+      });
   }
 
   addToPlaylist(songObj) {
@@ -142,7 +158,7 @@ class ConnectedApp extends Component {
             <NoRoom />
           </div> :
           <div className="container">
-            <Queue addToPlaylist={this.addToPlaylist} />
+            <Queue addToPlaylist={this.addToPlaylist} removeFromQueue={this.removeFromQueue} />
             <VideoContent
               adjustQueue={this.adjustQueue}
             />

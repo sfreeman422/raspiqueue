@@ -7,7 +7,7 @@ const mapStateToProps = state => ({
   user: state.user,
 });
 
-const ConnectedMyQueue = ({ queue, user }) => {
+const ConnectedMyQueue = ({ removeFromQueue, queue, user }) => {
   if (queue.length > 0) {
     return (
       <React.Fragment>
@@ -17,7 +17,7 @@ const ConnectedMyQueue = ({ queue, user }) => {
               <tr key={`queue-row-item-${index}`}>
                 <td>{queueItem.linkName}{index === 0 ?
                   <i className="fas fa-headphones" /> : null}
-                  <br /><span id="postedBy">Added by: {queueItem.userName}</span>
+                  <br /><span id="postedBy">Added by: {queueItem.userName}</span> <span onClick={() => removeFromQueue(queueItem)}>x</span>
                 </td>
               </tr>))}
       </React.Fragment>
@@ -28,6 +28,7 @@ const ConnectedMyQueue = ({ queue, user }) => {
 ConnectedMyQueue.propTypes = {
   queue: PropTypes.arrayOf(PropTypes.object).isRequired,
   user: PropTypes.shape({ userName: PropTypes.string, userId: PropTypes.number }).isRequired,
+  removeFromQueue: PropTypes.func.isRequired,
 };
 
 const MyQueue = connect(mapStateToProps)(ConnectedMyQueue);

@@ -88,8 +88,8 @@ class ConnectedQueue extends Component {
             <tbody>
               {this.state.chosenView === 'queue' && <RoomQueue />}
               {this.state.chosenView === 'history' && <History />}
-              {this.state.chosenView === 'myQueue' && <MyQueue />}
-              {this.state.chosenView === 'searchResults' && <SearchResults />}
+              {this.state.chosenView === 'myQueue' && <MyQueue removeFromQueue={this.props.removeFromQueue} />}
+              {this.state.chosenView === 'searchResults' && <SearchResults searchResults={this.state.searchResults} isSearching={this.state.isSearching} addToPlaylist={this.props.addToPlaylist} />}
             </tbody>
           </table>
         </div>
@@ -104,9 +104,10 @@ export default Queue;
 ConnectedQueue.propTypes = {
   queue: PropTypes.arrayOf(PropTypes.object),
   history: PropTypes.arrayOf(PropTypes.object),
-  addToPlaylist: PropTypes.func.isRequired,
   user: PropTypes.number,
   roomId: PropTypes.number,
+  addToPlaylist: PropTypes.func.isRequired,
+  removeFromQueue: PropTypes.func.isRequired,
 };
 
 ConnectedQueue.defaultProps = {

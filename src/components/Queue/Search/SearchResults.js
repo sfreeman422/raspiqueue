@@ -4,26 +4,30 @@ import PropTypes from 'prop-types';
 import SearchResult from './SearchResult';
 
 const mapStateToProps = state => ({
-  searchResults: state.searchResults,
+  user: state.user,
+  roomId: state.roomId,
 });
 
-const ConnectedSearchResults = ({ searchResults }) => (
+const ConnectedSearchResults = ({
+  user, roomId, addToPlaylist, searchResults,
+}) => (
   <React.Fragment>
     {searchResults ? searchResults
           .map((searchItem, index) => (
             <tr key={`search-result-item-${index}`}>
               <SearchResult
                 searchItem={searchItem}
-                addToPlaylist={this.props.addToPlaylist}
-                userId={this.props.user.userId}
-                roomId={this.props.roomId}
+                addToPlaylist={addToPlaylist}
+                userId={user.userId}
+                roomId={roomId}
               />
-            </tr>)) : <tr><span>You haven't search anything yet!</span></tr>}
+            </tr>)) : <tr><td>You haven't search anything yet!</td></tr>}
   </React.Fragment>
 );
 
 ConnectedSearchResults.propTypes = {
   searchResults: PropTypes.arrayOf(PropTypes.object).isRequired,
+  addToPlaylist: PropTypes.func.isRequired,
 };
 
 const SearchResults = connect(mapStateToProps)(ConnectedSearchResults);
