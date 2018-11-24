@@ -55,9 +55,10 @@ class ConnectedApp extends Component {
     if (!roomName) {
       roomName = 'lobby';
     }
-    ClientSocket.client.connect(`/${roomName}`);
+    ClientSocket.client.connect();
     ClientSocket.client.on('connected', (userObj) => {
       this.props.setUser(userObj);
+      ClientSocket.client.emit('joinRoom', roomName);
     });
     ClientSocket.client.on('queueChanged', () => this.updateQueue(roomName));
     ClientSocket.client.on('messageReceived', (message) => {
@@ -96,7 +97,7 @@ class ConnectedApp extends Component {
       body: JSON.stringify(songObj),
     }).then(response => response.json())
       .then(() => {
-        ClientSocket.client.emit('markPlayed', `Played video: ${songObj.linkName}`);
+        ClientSocket.client.emit('markPlayed', songObj.linkName);
       });
   }
 
@@ -124,7 +125,7 @@ class ConnectedApp extends Component {
       body: JSON.stringify(songObj),
     }).then(response => response.json()).then(() => {
       // Lets our server know that we have added a song.
-      ClientSocket.client.emit('addVideo', `Added video: ${songObj.title}`);
+      ClientSocket.client.emit('addVideo', songObj);
     });
   }
 

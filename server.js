@@ -41,6 +41,7 @@ async function getRandomUserName() {
 
 io.sockets.on('connection', async (socket) => {
   let LEADING_TIME = 0;
+  let roomName;
   const randomUserName = await getRandomUserName();
   const user = {
     userName: randomUserName,
@@ -69,6 +70,47 @@ io.sockets.on('connection', async (socket) => {
     }
   });
 
+  socket.on('joinRoom', (room) => {
+    roomName = room;
+    socket.join(room);
+  });
+  
+  // Listen for queue related events.
+  socket.on('queueChange', () => {
+    io.sockets.in(roomName).emit('queueChanged');
+  });
+
+  socket.on('markPlayed', (data) => {
+    LEADING_TIME = 0;
+    io.sockets.in(roomName).emit('syncWithServer', LEADING_TIME);
+    io.sockets.in(roomName).emit('queueChanged');
+  });
+
+  socket.on('addVideo', (data) => {
+    console.log(data);
+    io.sockets.in(roomName).emit('queueChanged');
+  });
+
+  // Listen for chat related events
+  socket.on('message', (message) => {
+    io.sockets.in(roomName).emit('messageReceived', message);
+  });
+
+  // Handles a voting situation.
+  // Still need to determine how we will use this and what our source of truth will be.
+  socket.on('vote', (voteInfo) => {
+    if (voteInfo.type === 'up') {
+      io.sockets.in(roomName).emit('upvoteIncremented');
+    } io.sockets.in(roomName).emit('downvoteIncremented');
+  });
+
+  socket.on('timeSync', (time, songId) => {
+    if (time > LEADING_TIME) {
+      LEADING_TIME = time;
+    }
+    io.sockets.in(roomName).emit('syncWithServer', LEADING_TIME);
+  });
+
   socket.on('disconnect', () => {
     console.log(`User ${user.userName} disconnected!`);
     if (user.userId) {
@@ -77,41 +119,6 @@ io.sockets.on('connection', async (socket) => {
         else console.log(`Successfully added user: ${user.userName} back to the available public IDs`);
       });
     }
-  });
-
-  // Listen for queue related events.
-  socket.on('queueChange', () => {
-    io.emit('queueChanged');
-  });
-
-  socket.on('markPlayed', () => {
-    LEADING_TIME = 0;
-    io.emit('syncWithServer', LEADING_TIME);
-    io.emit('queueChanged');
-  });
-
-  socket.on('addVideo', () => {
-    io.emit('queueChanged');
-  });
-
-  // Listen for chat related events
-  socket.on('message', (message) => {
-    io.emit('messageReceived', message);
-  });
-
-  // Handles a voting situation.
-  // Still need to determine how we will use this and what our source of truth will be.
-  socket.on('vote', (voteInfo) => {
-    if (voteInfo.type === 'up') {
-      io.emit('upvoteIncremented');
-    } io.emit('downvoteIncremented');
-  });
-
-  socket.on('timeSync', (time) => {
-    if (time > LEADING_TIME) {
-      LEADING_TIME = time;
-    }
-    io.emit('syncWithServer', LEADING_TIME);
   });
 });
 

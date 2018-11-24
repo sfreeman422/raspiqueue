@@ -37,6 +37,13 @@ class ConnectedVideoContent extends Component {
     this.trackTime = this.trackTime.bind(this);
     this.timeSync = this.timeSync.bind(this);
     this.jumpToSeconds = this.jumpToSeconds.bind(this);
+    this.trackTimePoll = undefined;
+  }
+
+  componentWillUnmount() {
+    if (this.trackTimePoll) {
+      clearInterval(this.trackTimePoll);
+    }
   }
   // Increments the state of the upvotes for the currently playing song.
   upvote() {
@@ -70,18 +77,17 @@ class ConnectedVideoContent extends Component {
   handleReady(event) {
     this.setState({ player: event.target });
     console.debug('video is ready');
-    setInterval(() => this.trackTime(), 100);
+    this.trackTimePoll = setInterval(() => this.trackTime(), 1000);
     ClientSocket.client.on('syncWithServer', time => this.timeSync(time));
   }
 
   trackTime() {
-    console.debug('attempting to track time');
     if (this.state.player) {
-      console.debug('tracking time and emiting time sync event');
       const time = Math.round(this.state.player.getCurrentTime());
+      console.log('clientTime', time);
       ClientSocket.client.emit('timeSync', time);
     } else {
-      console.debug('unable to track time because player is not ready');
+      console.error('unable to track time because player is not ready');
     }
   }
 
@@ -90,7 +96,7 @@ class ConnectedVideoContent extends Component {
   }
 
   timeSync(serverTime) {
-    console.log(`Time Sync called with serverTime${serverTime}`);
+    console.log('serverTime', serverTime);
     if (this.state.player) {
       const playerTime = Math.round(this.state.player.getCurrentTime());
       if (serverTime !== playerTime) {
