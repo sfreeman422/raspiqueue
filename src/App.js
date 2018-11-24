@@ -18,6 +18,7 @@ const mapStateToProps = state => ({
   user: state.user,
   loggedInState: state.loggedInUser,
   client: state.client,
+  queue: state.queue
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -29,11 +30,13 @@ const mapDispatchToProps = dispatch => ({
   setRoomError: roomErr => dispatch(actions.setRoomErr(roomErr)),
   setUser: user => dispatch(actions.setUser(user)),
   updateMessages: message => dispatch(actions.updateMessages(message)),
+  setCurrentSong: song => dispatch(actions.setCurrentSong(song))
 });
 
 class ConnectedApp extends Component {
   constructor(props) {
     super(props);
+    this.currentSongTimeout = undefined;
     this.markPlayed = this.markPlayed.bind(this);
     this.adjustQueue = this.adjustQueue.bind(this);
     this.addToPlaylist = this.addToPlaylist.bind(this);
@@ -59,12 +62,22 @@ class ConnectedApp extends Component {
     ClientSocket.client.on('connected', (userObj) => {
       this.props.setUser(userObj);
       ClientSocket.client.emit('joinRoom', roomName);
+      ClientSocket.isConnected = true;
     });
     ClientSocket.client.on('queueChanged', () => this.updateQueue(roomName));
     ClientSocket.client.on('messageReceived', (message) => {
       this.props.updateMessages(message);
     });
     this.updateQueue(roomName);
+  }
+
+  setCurrentSong(song) {
+    window.clearTimeout(this.currentSongTimeout);
+    if (this.props.queue.length > 0 && ClientSocket.isConnected) {
+      ClientSocket.client.emit('currentSong', this.props.queue[0]);
+    } else {
+      this.currentSongTimeout = window.setTimeout(() => this.setCurrentSong(song), 1000);
+    }
   }
 
   updateQueue(roomName) {
@@ -78,6 +91,8 @@ class ConnectedApp extends Component {
           this.props.updateQueue(json.queue);
           this.props.updateHistory(json.history);
           this.props.updateRoomId(json.roomId);
+          this.props.setCurrentSong(json.queue[0]);
+          this.setCurrentSong(json.queue[0]);
         } else if (json.status === 404) {
           this.props.setRoomError(json.message);
         }
@@ -97,7 +112,7 @@ class ConnectedApp extends Component {
       body: JSON.stringify(songObj),
     }).then(response => response.json())
       .then(() => {
-        ClientSocket.client.emit('markPlayed', songObj.linkName);
+        ClientSocket.client.emit('markPlayed', songObj);
       });
   }
 
@@ -111,7 +126,7 @@ class ConnectedApp extends Component {
       body: JSON.stringify(songObj),
     }).then(response => response.json())
       .then((res) => {
-        ClientSocket.client.emit('queueChange');
+        ClientSocket.client.emit('queueChange', this.props.queue);
       });
   }
 

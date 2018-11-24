@@ -39,3 +39,8 @@ export const updateMessages = message => ({
   type: types.UPDATE_MESSAGES,
   payload: message,
 });
+
+export const setCurrentSong = song => ({
+  type: types.CURRENT_SONG,
+  payload: song
+});

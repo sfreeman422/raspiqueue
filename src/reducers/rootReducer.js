@@ -8,6 +8,7 @@ const initialState = {
   messages: [],
   history: [],
   client: {},
+  currentSong: {}
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -52,6 +53,11 @@ const rootReducer = (state = initialState, action) => {
         ...state,
         user: action.payload,
       };
+    case 'SET_CURRENT_SONG':
+      return {
+        ...state,
+        currentSong: action.payload
+      }
     default:
       return state;
   }

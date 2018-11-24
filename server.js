@@ -42,6 +42,7 @@ async function getRandomUserName() {
 io.sockets.on('connection', async (socket) => {
   let LEADING_TIME = 0;
   let roomName;
+  let currentSong;
   const randomUserName = await getRandomUserName();
   const user = {
     userName: randomUserName,
@@ -74,16 +75,24 @@ io.sockets.on('connection', async (socket) => {
     roomName = room;
     socket.join(room);
   });
-  
+
   // Listen for queue related events.
-  socket.on('queueChange', () => {
+  socket.on('queueChange', (queue) => {
     io.sockets.in(roomName).emit('queueChanged');
+    currentSong = queue[0];
   });
 
-  socket.on('markPlayed', (data) => {
-    LEADING_TIME = 0;
-    io.sockets.in(roomName).emit('syncWithServer', LEADING_TIME);
-    io.sockets.in(roomName).emit('queueChanged');
+  socket.on('currentSong', (songObj) => {
+    console.log('current song: ', songObj);
+    currentSong = songObj;
+  });
+
+  socket.on('markPlayed', (songObj) => {
+    if (currentSong && songObj.linkId === currentSong.linkId) {
+      LEADING_TIME = 0;
+      io.sockets.in(roomName).emit('syncWithServer', LEADING_TIME);
+      io.sockets.in(roomName).emit('queueChanged');
+    }
   });
 
   socket.on('addVideo', (data) => {
@@ -104,11 +113,10 @@ io.sockets.on('connection', async (socket) => {
     } io.sockets.in(roomName).emit('downvoteIncremented');
   });
 
-  socket.on('timeSync', (time, songId) => {
-    if (time > LEADING_TIME) {
-      LEADING_TIME = time;
-    }
-    io.sockets.in(roomName).emit('syncWithServer', LEADING_TIME);
+  socket.on('timeSync', (song) => {
+    if (song.time > LEADING_TIME && currentSong && song.linkId === currentSong.linkId) {
+      LEADING_TIME = song.time;
+    } io.sockets.in(roomName).emit('syncWithServer', LEADING_TIME);
   });
 
   socket.on('disconnect', () => {
