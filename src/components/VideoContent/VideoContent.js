@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import YouTube from 'react-youtube';
-import PropTypes from 'prop-types';
-import ThumbsButton from './Children/ThumbsButton';
-import ClientSocket from '../../ClientSocket';
-import './VideoContent.css';
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import YouTube from "react-youtube";
+import PropTypes from "prop-types";
+import ThumbsButton from "./Children/ThumbsButton";
+import ClientSocket from "../../ClientSocket";
+import "./VideoContent.css";
 
 // Options to interact with the react-youtube component.
 const options = {
@@ -14,12 +14,12 @@ const options = {
     disablekb: 1,
     iv_load_policy: 3,
     rel: 0,
-    showinfo: 0,
-  },
+    showinfo: 0
+  }
 };
 
 const mapStateToProps = state => ({
-  queue: state.queue,
+  queue: state.queue
 });
 
 class ConnectedVideoContent extends Component {
@@ -28,7 +28,7 @@ class ConnectedVideoContent extends Component {
     this.state = {
       upvotes: 0,
       downvotes: 0,
-      player: {},
+      player: {}
     };
     this.upvote = this.upvote.bind(this);
     this.downvote = this.downvote.bind(this);
@@ -48,21 +48,25 @@ class ConnectedVideoContent extends Component {
   // Increments the state of the upvotes for the currently playing song.
   upvote() {
     this.setState({
-      upvotes: this.state.upvotes + 1,
+      upvotes: this.state.upvotes + 1
     });
   }
   // Increments the state of the downvotes for the currently playing song.
   downvote() {
     this.setState({
-      downvotes: this.state.downvotes + 1,
+      downvotes: this.state.downvotes + 1
     });
   }
   // Sends the data off to our parent to be sent to the DB and sets local state to 0 for UV and DV.
   cleanUp() {
-    this.props.adjustQueue(this.props.queue[0], this.state.upvotes, this.state.downvotes);
+    this.props.adjustQueue(
+      this.props.queue[0],
+      this.state.upvotes,
+      this.state.downvotes
+    );
     this.setState({
       upvotes: 0,
-      downvotes: 0,
+      downvotes: 0
     });
   }
   // Allows us to invoke upVote/downVote from the keyboard.
@@ -76,20 +80,23 @@ class ConnectedVideoContent extends Component {
 
   handleReady(event) {
     this.setState({ player: event.target });
-    console.debug('video is ready');
+    console.debug("video is ready");
     this.trackTimePoll = window.setInterval(() => this.trackTime(), 1000);
-    ClientSocket.client.on('syncWithServer', time => this.timeSync(time));
+    ClientSocket.client.on("syncWithServer", time => this.timeSync(time));
   }
 
   trackTime() {
     if (this.state.player) {
       const time = Math.round(this.state.player.getCurrentTime());
-      console.log('clientTime', time);
+      console.log("clientTime", time);
       if (this.props.queue) {
-        ClientSocket.client.emit('timeSync', Object.assign(this.props.queue[0], { time }));
+        ClientSocket.client.emit(
+          "timeSync",
+          Object.assign(this.props.queue[0], { time })
+        );
       }
     } else {
-      console.error('unable to track time because player is not ready');
+      console.error("unable to track time because player is not ready");
     }
   }
 
@@ -98,7 +105,7 @@ class ConnectedVideoContent extends Component {
   }
 
   timeSync(serverTime) {
-    console.log('serverTime', serverTime);
+    console.log("serverTime", serverTime);
     if (this.state.player) {
       const playerTime = Math.round(this.state.player.getCurrentTime());
       if (serverTime !== playerTime) {
@@ -114,7 +121,7 @@ class ConnectedVideoContent extends Component {
   render() {
     return (
       <div className="video-content-section">
-        {this.props.queue.length > 0 ?
+        {this.props.queue.length > 0 ? (
           <div className="video-content">
             <YouTube
               videoId={this.props.queue[0].linkUrl}
@@ -137,8 +144,9 @@ class ConnectedVideoContent extends Component {
               votes={this.state.upvotes}
             />
           </div>
-          :
-          <h3>No songs in the queue! Queue something</h3>}
+        ) : (
+          <h3>No songs in the queue! Queue something</h3>
+        )}
       </div>
     );
   }
@@ -150,5 +158,5 @@ export default VideoContent;
 
 ConnectedVideoContent.propTypes = {
   queue: PropTypes.arrayOf(PropTypes.object).isRequired,
-  adjustQueue: PropTypes.func.isRequired,
+  adjustQueue: PropTypes.func.isRequired
 };

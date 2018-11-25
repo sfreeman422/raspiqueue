@@ -1,7 +1,7 @@
 const initialState = {
-  roomName: '',
-  roomId: '',
-  roomErr: '',
+  roomName: "",
+  roomId: "",
+  roomErr: "",
   user: {}, // Placeholder! Will need to be determined once auth is included.
   loggedInState: false,
   queue: [],
@@ -13,51 +13,51 @@ const initialState = {
 
 const rootReducer = (state = initialState, action) => {
   switch (action.type) {
-    case 'UPDATE_ROOM_NAME':
+    case "UPDATE_ROOM_NAME":
       return {
         ...state,
-        roomName: action.payload,
+        roomName: action.payload
       };
-    case 'UPDATE_QUEUE':
+    case "UPDATE_QUEUE":
       return {
         ...state,
-        queue: action.payload,
+        queue: action.payload
       };
-    case 'UPDATE_HISTORY':
+    case "UPDATE_HISTORY":
       return {
         ...state,
-        history: action.payload,
+        history: action.payload
       };
-    case 'UPDATE_ROOM_ID':
+    case "UPDATE_ROOM_ID":
       return {
         ...state,
-        roomId: action.payload,
+        roomId: action.payload
       };
-    case 'SET_ROOM_ERROR':
+    case "SET_ROOM_ERROR":
       return {
         ...state,
-        userLoc: action.payload,
+        userLoc: action.payload
       };
-    case 'UPDATE_CLIENT':
+    case "UPDATE_CLIENT":
       return {
         ...state,
-        client: action.payload,
+        client: action.payload
       };
-    case 'UPDATE_MESSAGES':
+    case "UPDATE_MESSAGES":
       return {
         ...state,
-        messages: [...state.messages, action.payload],
+        messages: [...state.messages, action.payload]
       };
-    case 'SET_USER':
+    case "SET_USER":
       return {
         ...state,
-        user: action.payload,
+        user: action.payload
       };
-    case 'SET_CURRENT_SONG':
+    case "SET_CURRENT_SONG":
       return {
         ...state,
         currentSong: action.payload
-      }
+      };
     default:
       return state;
   }

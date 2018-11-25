@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import './Chat.css';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import "./Chat.css";
 
 const mapStateToProps = state => ({
-  messages: state.messages,
+  messages: state.messages
 });
 
 class ConnectedChat extends Component {
@@ -12,7 +12,7 @@ class ConnectedChat extends Component {
     super(props);
     this.state = {
       isScrolling: false,
-      message: '',
+      message: ""
     };
     this.handleUserMessage = this.handleUserMessage.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
@@ -21,7 +21,9 @@ class ConnectedChat extends Component {
   }
 
   componentDidMount() {
-    document.getElementsByClassName('message-area')[0].addEventListener('scroll', this.handleScroll);
+    document
+      .getElementsByClassName("message-area")[0]
+      .addEventListener("scroll", this.handleScroll);
   }
 
   componentDidUpdate(prevProps) {
@@ -31,12 +33,14 @@ class ConnectedChat extends Component {
   }
 
   componentWillUnmount() {
-    document.getElementsByClassName('message-area')[0].removeEventListener('scroll', this.handleScroll);
+    document
+      .getElementsByClassName("message-area")[0]
+      .removeEventListener("scroll", this.handleScroll);
   }
 
   handleUserMessage(event) {
     this.setState({
-      message: event.target.value,
+      message: event.target.value
     });
   }
 
@@ -44,17 +48,17 @@ class ConnectedChat extends Component {
     console.log(this.state.isScrolling);
     if (!this.state.isScrolling) {
       this.setState({ isScrolling: false });
-      const chatDiv = document.getElementsByClassName('message-area');
+      const chatDiv = document.getElementsByClassName("message-area");
       chatDiv[0].scrollTop = chatDiv[0].scrollHeight;
     }
   }
 
   handleScroll() {
     let oldScroll;
-    const chat = document.getElementsByClassName('message-area')[0];
+    const chat = document.getElementsByClassName("message-area")[0];
     console.log(oldScroll < chat.scrollTop);
     if (oldScroll < chat.scrollTop) {
-      console.log('user is scrolling up');
+      console.log("user is scrolling up");
       this.setState({ isScrolling: true });
       this.scrollToBottomTimeOut = setTimeout(this.scrollToBottom, 3000);
       this.oldScroll = chat.scrollTop;
@@ -65,7 +69,7 @@ class ConnectedChat extends Component {
     event.preventDefault();
     this.props.sendMessage(this.state.message);
     this.setState({
-      message: '',
+      message: ""
     });
   }
 
@@ -75,7 +79,13 @@ class ConnectedChat extends Component {
         <div className="message-area">
           <table>
             <tbody>
-              {this.props.messages.map((message, index) => <tr key={`message-row-${index}`}><td>{message.userName}: {message.message}</td></tr>)}
+              {this.props.messages.map((message, index) => (
+                <tr key={`message-row-${index}`}>
+                  <td>
+                    {message.userName}: {message.message}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -105,11 +115,11 @@ class ConnectedChat extends Component {
 
 ConnectedChat.propTypes = {
   messages: PropTypes.arrayOf(PropTypes.object),
-  sendMessage: PropTypes.func.isRequired,
+  sendMessage: PropTypes.func.isRequired
 };
 
 ConnectedChat.defaultProps = {
-  messages: [{}],
+  messages: [{}]
 };
 const Chat = connect(mapStateToProps)(ConnectedChat);
 

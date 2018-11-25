@@ -1,11 +1,11 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import store from './store/store';
-import './index.css';
-import App from './App';
-import registerServiceWorker from './registerServiceWorker';
+import React from "react";
+import ReactDOM from "react-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "./store/store";
+import "./index.css";
+import App from "./App";
+import registerServiceWorker from "./registerServiceWorker";
 
 /*
 Renders a router and a switch
@@ -19,7 +19,7 @@ ReactDOM.render(
         <Route path="/" component={App} />
       </Switch>
     </Router>
-  </Provider>
-  , document.getElementById('root'),
+  </Provider>,
+  document.getElementById("root")
 );
 registerServiceWorker();

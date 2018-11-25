@@ -6,7 +6,9 @@ function roundRobinSort(arr) {
   while (allSongs.length > 0) {
     const orderedSet = [];
     for (let i = 0; i < allSongs.length; i += 1) {
-      const found = orderedSet.find(element => element.userName === allSongs[i].userName);
+      const found = orderedSet.find(
+        element => element.userName === allSongs[i].userName
+      );
       if (!found) {
         orderedSet.push(allSongs[i]);
         allSongs.splice(i, 1);

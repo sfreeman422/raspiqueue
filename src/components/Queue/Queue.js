@@ -1,28 +1,28 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import fetch from 'isomorphic-fetch';
-import SearchResults from './Search/SearchResults';
-import RoomQueue from './RoomQueue/RoomQueue';
-import MyQueue from './MyQueue/MyQueue';
-import History from './History/History';
-import './Queue.css';
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
+import fetch from "isomorphic-fetch";
+import SearchResults from "./Search/SearchResults";
+import RoomQueue from "./RoomQueue/RoomQueue";
+import MyQueue from "./MyQueue/MyQueue";
+import History from "./History/History";
+import "./Queue.css";
 
 const mapStateToProps = state => ({
   queue: state.queue,
   history: state.history,
   roomId: state.roomId,
-  user: state.user,
+  user: state.user
 });
 
 class ConnectedQueue extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      chosenView: 'queue',
-      searchTerm: '',
+      chosenView: "queue",
+      searchTerm: "",
       searchResults: [],
-      isSearching: false,
+      isSearching: false
     };
     this.changeView = this.changeView.bind(this);
     this.search = this.search.bind(this);
@@ -31,31 +31,31 @@ class ConnectedQueue extends Component {
 
   onSearchTermChange(event) {
     this.setState({
-      searchTerm: event.target.value,
+      searchTerm: event.target.value
     });
-    if (event.target.value === '') {
+    if (event.target.value === "") {
       this.setState({
         searchResults: [],
-        chosenView: 'queue',
+        chosenView: "queue"
       });
     }
   }
 
   search(e) {
     e.preventDefault();
-    this.setState({ isSearching: true, chosenView: 'searchResults' });
-    fetch('/api/youtube', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    this.setState({ isSearching: true, chosenView: "searchResults" });
+    fetch("/api/youtube", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        query: this.state.searchTerm,
-      }),
+        query: this.state.searchTerm
+      })
     })
       .then(res => res.json())
-      .then((json) => {
+      .then(json => {
         this.setState({
           searchResults: json,
-          isSearching: false,
+          isSearching: false
         });
       });
   }
@@ -66,7 +66,7 @@ class ConnectedQueue extends Component {
   // MyQueue - Shows the songs that a user has personally queued. (Not Functional)
   changeView(view) {
     this.setState({
-      chosenView: view,
+      chosenView: view
     });
   }
 
@@ -75,21 +75,36 @@ class ConnectedQueue extends Component {
       <div className="queue">
         <div className="view-buttons">
           <form onSubmit={this.search}>
-            <input type="text" placeholder="Search for a song..." value={this.state.searchTerm} onChange={this.onSearchTermChange} />
+            <input
+              type="text"
+              placeholder="Search for a song..."
+              value={this.state.searchTerm}
+              onChange={this.onSearchTermChange}
+            />
             <i className="fas fa-search" />
           </form>
-          <button onClick={() => this.changeView('queue')}>Queue</button>
-          <button onClick={() => this.changeView('history')}>History</button>
-          <button onClick={() => this.changeView('myQueue')}>My Queue</button>
-          <button onClick={() => this.changeView('searchResults')}>Search Results</button>
+          <button onClick={() => this.changeView("queue")}>Queue</button>
+          <button onClick={() => this.changeView("history")}>History</button>
+          <button onClick={() => this.changeView("myQueue")}>My Queue</button>
+          <button onClick={() => this.changeView("searchResults")}>
+            Search Results
+          </button>
         </div>
         <div className="queue-list">
           <table>
             <tbody>
-              {this.state.chosenView === 'queue' && <RoomQueue />}
-              {this.state.chosenView === 'history' && <History />}
-              {this.state.chosenView === 'myQueue' && <MyQueue removeFromQueue={this.props.removeFromQueue} />}
-              {this.state.chosenView === 'searchResults' && <SearchResults searchResults={this.state.searchResults} isSearching={this.state.isSearching} addToPlaylist={this.props.addToPlaylist} />}
+              {this.state.chosenView === "queue" && <RoomQueue />}
+              {this.state.chosenView === "history" && <History />}
+              {this.state.chosenView === "myQueue" && (
+                <MyQueue removeFromQueue={this.props.removeFromQueue} />
+              )}
+              {this.state.chosenView === "searchResults" && (
+                <SearchResults
+                  searchResults={this.state.searchResults}
+                  isSearching={this.state.isSearching}
+                  addToPlaylist={this.props.addToPlaylist}
+                />
+              )}
             </tbody>
           </table>
         </div>
@@ -107,12 +122,12 @@ ConnectedQueue.propTypes = {
   user: PropTypes.number,
   roomId: PropTypes.number,
   addToPlaylist: PropTypes.func.isRequired,
-  removeFromQueue: PropTypes.func.isRequired,
+  removeFromQueue: PropTypes.func.isRequired
 };
 
 ConnectedQueue.defaultProps = {
   queue: [],
   history: [],
   user: 0,
-  roomId: 0,
+  roomId: 0
 };

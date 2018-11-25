@@ -9,19 +9,19 @@
 
 .queue-list {
   height: 90%;
-  max-height:90%;
+  max-height: 90%;
   overflow: scroll;
 }
 
 .queue-buttons {
   height: 10%;
-  max-height:10%;
+  max-height: 10%;
 }
 
 .fa-headphones {
   float: right;
 }
 
-#postedBy{
+#postedBy {
   font-size: 75%;
 }
