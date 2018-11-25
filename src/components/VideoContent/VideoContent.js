@@ -37,6 +37,13 @@ class ConnectedVideoContent extends Component {
     this.trackTime = this.trackTime.bind(this);
     this.timeSync = this.timeSync.bind(this);
     this.jumpToSeconds = this.jumpToSeconds.bind(this);
+    this.trackTimePoll = undefined;
+  }
+
+  componentWillUnmount() {
+    if (this.trackTimePoll) {
+      window.clearInterval(this.trackTimePoll);
+    }
   }
   // Increments the state of the upvotes for the currently playing song.
   upvote() {
@@ -61,27 +68,28 @@ class ConnectedVideoContent extends Component {
   // Allows us to invoke upVote/downVote from the keyboard.
   handleKeyUp(event) {
     if (event.keyCode === 87) {
-      this.upVote(this.props.queue[0].linkUrl);
+      this.upVote(this.props.queue[0].linkId);
     } else if (event.keycode === 83) {
-      this.downVote(this.props.queue[0].linkUrl);
+      this.downVote(this.props.queue[0].linkId);
     }
   }
 
   handleReady(event) {
     this.setState({ player: event.target });
     console.debug('video is ready');
-    setInterval(() => this.trackTime(), 100);
+    this.trackTimePoll = window.setInterval(() => this.trackTime(), 1000);
     ClientSocket.client.on('syncWithServer', time => this.timeSync(time));
   }
 
   trackTime() {
-    console.debug('attempting to track time');
     if (this.state.player) {
-      console.debug('tracking time and emiting time sync event');
       const time = Math.round(this.state.player.getCurrentTime());
-      ClientSocket.client.emit('timeSync', time);
+      console.log('clientTime', time);
+      if (this.props.queue) {
+        ClientSocket.client.emit('timeSync', Object.assign(this.props.queue[0], { time }));
+      }
     } else {
-      console.debug('unable to track time because player is not ready');
+      console.error('unable to track time because player is not ready');
     }
   }
 
@@ -90,23 +98,14 @@ class ConnectedVideoContent extends Component {
   }
 
   timeSync(serverTime) {
-    console.log(`Time Sync called with serverTime${serverTime}`);
+    console.log('serverTime', serverTime);
     if (this.state.player) {
       const playerTime = Math.round(this.state.player.getCurrentTime());
       if (serverTime !== playerTime) {
         let difference = serverTime - playerTime;
-        // If player is ahead...
-        if (playerTime > serverTime) {
-          difference = playerTime - serverTime;
-          // And the difference is more than one second.
-          if (difference > 2) {
-            ClientSocket.client.emit('timeSync', playerTime);
-          }
-        } else if (playerTime < serverTime) {
-          difference = serverTime - playerTime;
-          if (difference > 2) {
-            this.jumpToSeconds(playerTime + difference);
-          }
+        // If our player is behind the server...
+        if (difference > 2) {
+          this.jumpToSeconds(playerTime + difference);
         }
       }
     }
