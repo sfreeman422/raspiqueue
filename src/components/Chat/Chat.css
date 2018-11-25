@@ -10,6 +10,14 @@
   overflow: scroll;
 }
 
+table {
+  table-layout: fixed;
+}
+
+td {
+  word-wrap: break-word;
+}
+
 .message-input-area {
   height: 10%;
 }
