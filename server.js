@@ -8,6 +8,8 @@ const auth = require("./routes/auth");
 const connection = require("./db/database");
 
 const wordnikApiKey = process.env.wordnikApi;
+const wordnikNoun = `https://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=noun&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key=${wordnikApiKey}`;
+const wordnikAdj = `https://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=adjective&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key=${wordnikApiKey}`;
 
 const port = process.env.PORT || 3000;
 const app = express();
@@ -22,27 +24,26 @@ app.use(auth);
 const server = require("http").createServer(app);
 const io = require("socket.io")(server);
 
-// Static route to serverHTML
+// Static route to serve page.
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "/public/index.html"));
 });
 
 async function getRandomUserName() {
-  const randomAdj = await fetch(
-    `https://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=adjective&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key=${wordnikApiKey}`
-  )
+  const randomAdj = await fetch(wordnikAdj)
     .then(res => res.json())
     .then(adj => adj.word);
-  const randomNoun = await fetch(
-    `https://api.wordnik.com/v4/words.json/randomWord?hasDictionaryDef=true&includePartOfSpeech=noun&maxCorpusCount=-1&minDictionaryCount=1&maxDictionaryCount=-1&minLength=5&maxLength=-1&api_key=${wordnikApiKey}`
-  )
+
+  const randomNoun = await fetch(wordnikNoun)
     .then(res => res.json())
     .then(noun => noun.word);
+
   const userName =
     randomAdj.charAt(0).toUpperCase() +
     randomAdj.slice(1) +
     randomNoun.charAt(0).toUpperCase() +
     randomNoun.slice(1);
+
   return userName;
 }
 
