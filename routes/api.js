@@ -73,6 +73,20 @@ router.post('/api/create/room', (req, res) => {
   });
 });
 
+router.post('/api/remove', (req, res) => {
+  console.log(req);
+  connection.query(`
+  DELETE FROM rooms_links
+    WHERE linkId=${req.body.linkId} && roomId=${req.body.roomId}
+  `, (err) => {
+    if (err) console.log(err);
+    res.send({
+      status: 200,
+      message: `Removed video at ID: ${req.body.linkId} from ${req.body.roomId}`,
+    });
+  });
+});
+
 router.post('/api/played', (req, res) => {
   connection.query(`
   UPDATE rooms_links

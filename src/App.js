@@ -1,16 +1,16 @@
 /* eslint class-methods-use-this: 0 */
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import fetch from 'isomorphic-fetch';
-import { connect } from 'react-redux';
-import logo from './logo.svg';
-import './App.css';
-import Queue from './Children/Queue/Queue';
-import VideoContent from './Children/VideoContent/VideoContent';
-import Chat from './Children/Chat/Chat';
-import NoRoom from './Children/NoRoom';
-import * as actions from './actions/actions';
-import ClientSocket from './ClientSocket';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import fetch from "isomorphic-fetch";
+import { connect } from "react-redux";
+import logo from "./logo.svg";
+import "./App.css";
+import Queue from "./components/Queue/Queue";
+import VideoContent from "./components/VideoContent/VideoContent";
+import Chat from "./components/Chat/Chat";
+import NoRoom from "./components/NoRoom";
+import * as actions from "./actions/actions";
+import ClientSocket from "./ClientSocket";
 
 const mapStateToProps = state => ({
   roomName: state.roomName,
@@ -18,6 +18,7 @@ const mapStateToProps = state => ({
   user: state.user,
   loggedInState: state.loggedInUser,
   client: state.client,
+  queue: state.queue
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -28,16 +29,20 @@ const mapDispatchToProps = dispatch => ({
   updateClient: client => dispatch(actions.updateClient(client)),
   setRoomError: roomErr => dispatch(actions.setRoomErr(roomErr)),
   setUser: user => dispatch(actions.setUser(user)),
+  updateMessages: message => dispatch(actions.updateMessages(message)),
+  setCurrentSong: song => dispatch(actions.setCurrentSong(song))
 });
 
 class ConnectedApp extends Component {
   constructor(props) {
     super(props);
+    this.currentSongTimeout = undefined;
     this.markPlayed = this.markPlayed.bind(this);
     this.adjustQueue = this.adjustQueue.bind(this);
     this.addToPlaylist = this.addToPlaylist.bind(this);
     this.initializeApp = this.initializeApp.bind(this);
     this.updateQueue = this.updateQueue.bind(this);
+    this.sendMessage = this.sendMessage.bind(this);
   }
 
   componentDidMount() {
@@ -45,68 +50,114 @@ class ConnectedApp extends Component {
   }
 
   componentWillUnmount() {
-    ClientSocket.client.emit('disconnect', this.props.user);
+    ClientSocket.client.emit("disconnect", this.props.user);
   }
 
   initializeApp() {
     let { roomName } = this.props.match.params;
     if (!roomName) {
-      roomName = 'lobby';
+      roomName = "lobby";
     }
-    ClientSocket.client.connect(`/${roomName}`);
-    ClientSocket.client.on('connected', (userObj) => {
-      console.log(userObj);
-      this.props.setUser(userObj.userId);
+    ClientSocket.client.connect();
+    ClientSocket.client.on("connected", userObj => {
+      this.props.setUser(userObj);
+      ClientSocket.client.emit("joinRoom", roomName);
+      ClientSocket.isConnected = true;
     });
-    ClientSocket.client.on('queueChanged', () => this.updateQueue(roomName));
-    ClientSocket.client.on('messageReceived', () => this.getMessages());
+    ClientSocket.client.on("queueChanged", () => this.updateQueue(roomName));
+    ClientSocket.client.on("messageReceived", message => {
+      this.props.updateMessages(message);
+    });
     this.updateQueue(roomName);
-    // this.getMessages(roomName);
+  }
+
+  setCurrentSong(song) {
+    window.clearTimeout(this.currentSongTimeout);
+    if (this.props.queue.length > 0 && ClientSocket.isConnected) {
+      ClientSocket.client.emit("currentSong", this.props.queue[0]);
+    } else {
+      this.currentSongTimeout = window.setTimeout(
+        () => this.setCurrentSong(song),
+        1000
+      );
+    }
   }
 
   updateQueue(roomName) {
     // Get the roomName, current queue and history queue from MySQL.
     fetch(`/api/${roomName}`)
-      .then(response => response.json()).then((json) => {
+      .then(response => response.json())
+      .then(json => {
+        console.debug("Updating queue with", json);
         if (json.status === 200) {
           // Sets state based on results of query.
           this.props.updateRoomName(json.roomName);
           this.props.updateQueue(json.queue);
           this.props.updateHistory(json.history);
           this.props.updateRoomId(json.roomId);
+          this.props.setCurrentSong(json.queue[0]);
+          this.setCurrentSong(json.queue[0]);
         } else if (json.status === 404) {
           this.props.setRoomError(json.message);
         }
-      });
+      })
+      .catch(e => this.props.setRoomError(e.message));
   }
 
   // Makes a request to the server to make a song as played.
   // If a song has been played, it will be listed in the historyArr
   // If a song has not yet been played, it will be listed in the queue.
   markPlayed(songObj) {
-    fetch('/api/played', {
-      method: 'post',
+    fetch("/api/played", {
+      method: "post",
       headers: {
-        Accept: 'application/json, text/plain, */*',
-        'Content-Type': 'application/json',
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(songObj),
-    }).then(response => response.json()).then(() => {
-      ClientSocket.client.emit('markPlayed', `Played video: ${songObj.linkName}`);
-    });
+      body: JSON.stringify(songObj)
+    })
+      .then(response => response.json())
+      .then(() => {
+        ClientSocket.client.emit("markPlayed", songObj);
+      });
+  }
+
+  removeFromQueue(songObj) {
+    fetch("/api/remove", {
+      method: "post",
+      headers: {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(songObj)
+    })
+      .then(response => response.json())
+      .then(res => {
+        ClientSocket.client.emit("queueChange", this.props.queue);
+      });
   }
 
   addToPlaylist(songObj) {
-    fetch('/api/addSong', {
-      method: 'post',
+    fetch("/api/addSong", {
+      method: "post",
       headers: {
-        Accept: 'application/json, text/plain, */*',
-        'Content-Type': 'application/json',
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(songObj),
-    }).then(response => response.json()).then(() => {
-      // Lets our server know that we have added a song.
-      ClientSocket.client.emit('addVideo', `Added video: ${songObj.title}`);
+      body: JSON.stringify(songObj)
+    })
+      .then(response => response.json())
+      .then(() => {
+        // Lets our server know that we have added a song.
+        ClientSocket.client.emit("addVideo", songObj);
+      });
+  }
+
+  sendMessage(message) {
+    ClientSocket.client.emit("message", {
+      userId: this.props.user.userId,
+      userName: this.props.user.userName,
+      message
     });
   }
 
@@ -128,42 +179,51 @@ class ConnectedApp extends Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">{this.props.roomName === '' ? 'Welcome to Music Stream' : this.props.roomName}</h1>
-          <h2>You are logged in as {this.props.user}</h2>
+          <h1>
+            {this.props.roomName === ""
+              ? "Welcome to Music Stream"
+              : this.props.roomName}
+          </h1>
+          <h2>You are logged in as {this.props.user.userName}</h2>
         </header>
-        {this.props.roomErr !== '' ?
+        {this.props.roomErr !== "" ? (
           <div className="container">
             <NoRoom />
-          </div> :
+          </div>
+        ) : (
           <div className="container">
-            <Queue addToPlaylist={this.addToPlaylist} />
-            <VideoContent
-              adjustQueue={this.adjustQueue}
+            <Queue
+              addToPlaylist={this.addToPlaylist}
+              removeFromQueue={this.removeFromQueue}
             />
-            <Chat />
-          </div>}
+            <VideoContent adjustQueue={this.adjustQueue} />
+            <Chat sendMessage={this.sendMessage} />
+          </div>
+        )}
       </div>
     );
   }
 }
 
-const App = connect(mapStateToProps, mapDispatchToProps)(ConnectedApp);
+const App = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ConnectedApp);
 
 ConnectedApp.propTypes = {
   roomName: PropTypes.string,
-  roomErr: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.object,
-  ]),
+  roomErr: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   updateRoomName: PropTypes.func.isRequired,
   updateQueue: PropTypes.func.isRequired,
   updateHistory: PropTypes.func.isRequired,
   updateRoomId: PropTypes.func.isRequired,
   setRoomError: PropTypes.func.isRequired,
+  setUser: PropTypes.func.isRequired,
+  updateMessages: PropTypes.func.isRequired
 };
 
 ConnectedApp.defaultProps = {
-  roomName: '',
-  roomErr: '',
+  roomName: "",
+  roomErr: ""
 };
 export default App;

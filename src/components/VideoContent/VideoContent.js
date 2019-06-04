@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import YouTube from 'react-youtube';
-import PropTypes from 'prop-types';
-import ThumbsButton from './Children/ThumbsButton';
-import ClientSocket from '../../ClientSocket';
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import YouTube from "react-youtube";
+import PropTypes from "prop-types";
+import ThumbsButton from "./Children/ThumbsButton";
+import ClientSocket from "../../ClientSocket";
+import "./VideoContent.css";
 
 // Options to interact with the react-youtube component.
 const options = {
@@ -13,12 +14,12 @@ const options = {
     disablekb: 1,
     iv_load_policy: 3,
     rel: 0,
-    showinfo: 0,
-  },
+    showinfo: 0
+  }
 };
 
 const mapStateToProps = state => ({
-  queue: state.queue,
+  queue: state.queue
 });
 
 class ConnectedVideoContent extends Component {
@@ -27,7 +28,7 @@ class ConnectedVideoContent extends Component {
     this.state = {
       upvotes: 0,
       downvotes: 0,
-      player: {},
+      player: {}
     };
     this.upvote = this.upvote.bind(this);
     this.downvote = this.downvote.bind(this);
@@ -36,46 +37,66 @@ class ConnectedVideoContent extends Component {
     this.trackTime = this.trackTime.bind(this);
     this.timeSync = this.timeSync.bind(this);
     this.jumpToSeconds = this.jumpToSeconds.bind(this);
+    this.trackTimePoll = undefined;
+  }
+
+  componentWillUnmount() {
+    if (this.trackTimePoll) {
+      window.clearInterval(this.trackTimePoll);
+    }
   }
   // Increments the state of the upvotes for the currently playing song.
   upvote() {
     this.setState({
-      upvotes: this.state.upvotes + 1,
+      upvotes: this.state.upvotes + 1
     });
   }
   // Increments the state of the downvotes for the currently playing song.
   downvote() {
     this.setState({
-      downvotes: this.state.downvotes + 1,
+      downvotes: this.state.downvotes + 1
     });
   }
   // Sends the data off to our parent to be sent to the DB and sets local state to 0 for UV and DV.
   cleanUp() {
-    this.props.adjustQueue(this.props.queue[0], this.state.upvotes, this.state.downvotes);
+    this.props.adjustQueue(
+      this.props.queue[0],
+      this.state.upvotes,
+      this.state.downvotes
+    );
     this.setState({
       upvotes: 0,
-      downvotes: 0,
+      downvotes: 0
     });
   }
   // Allows us to invoke upVote/downVote from the keyboard.
   handleKeyUp(event) {
     if (event.keyCode === 87) {
-      this.upVote(this.props.queue[0].linkUrl);
+      this.upVote(this.props.queue[0].linkId);
     } else if (event.keycode === 83) {
-      this.downVote(this.props.queue[0].linkUrl);
+      this.downVote(this.props.queue[0].linkId);
     }
   }
 
   handleReady(event) {
     this.setState({ player: event.target });
-    setInterval(() => this.trackTime(), 100);
-    ClientSocket.client.on('syncWithServer', time => this.timeSync(time));
+    console.debug("video is ready");
+    this.trackTimePoll = window.setInterval(() => this.trackTime(), 1000);
+    ClientSocket.client.on("syncWithServer", time => this.timeSync(time));
   }
 
   trackTime() {
     if (this.state.player) {
       const time = Math.round(this.state.player.getCurrentTime());
-      ClientSocket.client.emit('timeSync', time);
+      console.log("clientTime", time);
+      if (this.props.queue) {
+        ClientSocket.client.emit(
+          "timeSync",
+          Object.assign(this.props.queue[0], { time })
+        );
+      }
+    } else {
+      console.error("unable to track time because player is not ready");
     }
   }
 
@@ -84,21 +105,14 @@ class ConnectedVideoContent extends Component {
   }
 
   timeSync(serverTime) {
-    console.log(`Time Sync called with serverTime${serverTime}`);
+    console.log("serverTime", serverTime);
     if (this.state.player) {
       const playerTime = Math.round(this.state.player.getCurrentTime());
       if (serverTime !== playerTime) {
-        let difference;
-        if (playerTime > serverTime) {
-          difference = playerTime - serverTime;
-          if (difference > 1) {
-            this.jumpToSeconds(playerTime - difference);
-          }
-        } else if (playerTime < serverTime) {
-          difference = serverTime - playerTime;
-          if (difference > 1) {
-            this.jumpToSeconds(playerTime + difference);
-          }
+        let difference = serverTime - playerTime;
+        // If our player is behind the server...
+        if (difference > 2) {
+          this.jumpToSeconds(playerTime + difference);
         }
       }
     }
@@ -107,7 +121,7 @@ class ConnectedVideoContent extends Component {
   render() {
     return (
       <div className="video-content-section">
-        {this.props.queue.length > 0 ?
+        {this.props.queue.length > 0 ? (
           <div className="video-content">
             <YouTube
               videoId={this.props.queue[0].linkUrl}
@@ -130,8 +144,9 @@ class ConnectedVideoContent extends Component {
               votes={this.state.upvotes}
             />
           </div>
-          :
-          <h3>No songs in the queue! Queue something</h3>}
+        ) : (
+          <h3>No songs in the queue! Queue something</h3>
+        )}
       </div>
     );
   }
@@ -143,5 +158,5 @@ export default VideoContent;
 
 ConnectedVideoContent.propTypes = {
   queue: PropTypes.arrayOf(PropTypes.object).isRequired,
-  adjustQueue: PropTypes.func.isRequired,
+  adjustQueue: PropTypes.func.isRequired
 };

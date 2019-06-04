@@ -1,9 +1,10 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+import React from "react";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
+import "./NoRoom.css";
 
 const mapStateToProps = state => ({
-  error: state.roomErr,
+  error: state.roomErr
 });
 
 // Renders a component to let the user know that a room was not found and why.
@@ -20,7 +21,6 @@ export default NoRoom;
 ConnectedNoRoom.propTypes = {
   error: PropTypes.shape({
     status: PropTypes.number.isRequired,
-    message: PropTypes.string.isRequired,
-  }).isRequired,
+    message: PropTypes.string.isRequired
+  }).isRequired
 };
-

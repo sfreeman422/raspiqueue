@@ -1,0 +1,23 @@
+.chat {
+  grid-column-start: col3;
+  grid-column-end: right-margin;
+  grid-row-start: content-area;
+  height: 100%;
+}
+
+.message-area {
+  height: 90%;
+  overflow: scroll;
+}
+
+table {
+  table-layout: fixed;
+}
+
+td {
+  word-wrap: break-word;
+}
+
+.message-input-area {
+  height: 10%;
+}

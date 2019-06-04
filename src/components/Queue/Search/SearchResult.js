@@ -1,18 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
+import "./SearchResult.css";
 
-const SearchResult = ({
-  searchItem,
-  addToPlaylist,
-  roomId,
-  userId,
-}) => {
+const SearchResult = ({ searchItem, addToPlaylist, roomId, userId }) => {
   const addObject = {
     video_id: searchItem.id.videoId,
     title: searchItem.snippet.title,
     thumbnail: searchItem.snippet.thumbnails.default.url,
     roomId,
-    userId,
+    userId
   };
 
   return (
@@ -25,13 +21,11 @@ const SearchResult = ({
             alt="YouTube Thumbail"
           />
         </div>
-        <div className="video-title">
-          {searchItem.snippet.title}
-        </div>
+        <div className="video-title">{searchItem.snippet.title}</div>
       </div>
       <div className="resultButtons">
         <button onClick={() => addToPlaylist(addObject)}>Add</button>
-        <button onClick={() => console.log('should preview')}>Preview</button>
+        <button onClick={() => console.log("should preview")}>Preview</button>
       </div>
     </td>
   );
@@ -43,5 +37,5 @@ SearchResult.propTypes = {
   searchItem: PropTypes.object.isRequired,
   addToPlaylist: PropTypes.func.isRequired,
   roomId: PropTypes.number.isRequired,
-  userId: PropTypes.number.isRequired,
+  userId: PropTypes.number.isRequired
 };
