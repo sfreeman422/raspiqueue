@@ -1,21 +1,15 @@
 .queue {
-  grid-column-start: col1;
-  grid-column-end: col1-margin;
-  grid-row-start: content-area;
-  max-height: 100%;
-  height: 100%;
-  max-width: 100%;
+  width: 50%;
+  display: inline-block;
 }
 
 .queue-list {
-  height: 90%;
-  max-height: 90%;
+  height: 25vh;
   overflow: scroll;
 }
 
 .queue-buttons {
-  height: 10%;
-  max-height: 10%;
+  height: 5vh;
 }
 
 .fa-headphones {

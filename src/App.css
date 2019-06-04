@@ -54,10 +54,3 @@ input {
 .fas {
   color: black;
 }
-
-.container {
-  display: grid;
-  grid-template-columns: [left-margin] 1% [col1] 20% [col1-margin] 1% [col2] 56% [col3-margin] 1% [col3] 20% [right-margin] 1%;
-  grid-template-rows: [top-margin] 1% [content-area] 98% [bottom-margin] 1%;
-  height: 65vh;
-}
