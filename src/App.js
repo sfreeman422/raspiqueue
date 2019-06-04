@@ -119,7 +119,6 @@ class ConnectedApp extends Component {
   }
 
   removeFromQueue(songObj) {
-    const queue = this.props.queue;
     fetch("/api/remove", {
       method: "post",
       headers: {
@@ -130,7 +129,7 @@ class ConnectedApp extends Component {
     })
       .then(response => response.json())
       .then(res => {
-        ClientSocket.client.emit("queueChange", queue);
+        ClientSocket.client.emit("queueChange", this.props.queue);
       });
   }
 
