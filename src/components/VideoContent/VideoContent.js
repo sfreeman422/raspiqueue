@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import YouTube from "react-youtube";
 import PropTypes from "prop-types";
 import ThumbsButton from "./Children/ThumbsButton";
-import ClientSocket from "../../ClientSocket";
 import "./VideoContent.css";
 
 // Options to interact with the react-youtube component.
@@ -34,8 +33,6 @@ class ConnectedVideoContent extends Component {
     this.downvote = this.downvote.bind(this);
     this.cleanUp = this.cleanUp.bind(this);
     this.handleReady = this.handleReady.bind(this);
-    this.trackTime = this.trackTime.bind(this);
-    this.timeSync = this.timeSync.bind(this);
     this.jumpToSeconds = this.jumpToSeconds.bind(this);
     this.trackTimePoll = undefined;
   }
@@ -81,41 +78,10 @@ class ConnectedVideoContent extends Component {
   handleReady(event) {
     this.setState({ player: event.target });
     console.debug("video is ready");
-    this.trackTimePoll = window.setInterval(() => this.trackTime(), 1000);
-    ClientSocket.client.on("syncWithServer", time => this.timeSync(time));
-  }
-
-  trackTime() {
-    if (this.state.player) {
-      const time = Math.round(this.state.player.getCurrentTime());
-      console.log("clientTime", time);
-      if (this.props.queue) {
-        ClientSocket.client.emit(
-          "timeSync",
-          Object.assign(this.props.queue[0], { time })
-        );
-      }
-    } else {
-      console.error("unable to track time because player is not ready");
-    }
   }
 
   jumpToSeconds(seconds) {
     this.state.player.seekTo(seconds, true);
-  }
-
-  timeSync(serverTime) {
-    console.log("serverTime", serverTime);
-    if (this.state.player) {
-      const playerTime = Math.round(this.state.player.getCurrentTime());
-      if (serverTime !== playerTime) {
-        let difference = serverTime - playerTime;
-        // If our player is behind the server...
-        if (difference > 2) {
-          this.jumpToSeconds(playerTime + difference);
-        }
-      }
-    }
   }
 
   render() {

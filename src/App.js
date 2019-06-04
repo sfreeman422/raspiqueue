@@ -41,6 +41,7 @@ class ConnectedApp extends Component {
     this.addToPlaylist = this.addToPlaylist.bind(this);
     this.initializeApp = this.initializeApp.bind(this);
     this.updateQueue = this.updateQueue.bind(this);
+    this.removeFromQueue = this.removeFromQueue.bind(this);
   }
 
   componentDidMount() {
@@ -118,6 +119,7 @@ class ConnectedApp extends Component {
   }
 
   removeFromQueue(songObj) {
+    const queue = this.props.queue;
     fetch("/api/remove", {
       method: "post",
       headers: {
@@ -128,7 +130,7 @@ class ConnectedApp extends Component {
     })
       .then(response => response.json())
       .then(res => {
-        ClientSocket.client.emit("queueChange", this.props.queue);
+        ClientSocket.client.emit("queueChange", queue);
       });
   }
 
@@ -161,7 +163,6 @@ class ConnectedApp extends Component {
   }
 
   render() {
-    console.log(this.props);
     return (
       <div className="App">
         <header className="App-header">
