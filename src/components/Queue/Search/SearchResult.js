@@ -25,7 +25,6 @@ const SearchResult = ({ searchItem, addToPlaylist, roomId, userId }) => {
       </div>
       <div className="resultButtons">
         <button onClick={() => addToPlaylist(addObject)}>Add</button>
-        <button onClick={() => console.log("should preview")}>Preview</button>
       </div>
     </td>
   );

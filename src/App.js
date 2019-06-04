@@ -38,7 +38,6 @@ class ConnectedApp extends Component {
     this.currentSongTimeout = undefined;
     this.markPlayed = this.markPlayed.bind(this);
     this.adjustQueue = this.adjustQueue.bind(this);
-    this.addToPlaylist = this.addToPlaylist.bind(this);
     this.initializeApp = this.initializeApp.bind(this);
     this.updateQueue = this.updateQueue.bind(this);
     this.removeFromQueue = this.removeFromQueue.bind(this);
@@ -133,22 +132,6 @@ class ConnectedApp extends Component {
       });
   }
 
-  addToPlaylist(songObj) {
-    fetch("/api/addSong", {
-      method: "post",
-      headers: {
-        Accept: "application/json, text/plain, */*",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(songObj)
-    })
-      .then(response => response.json())
-      .then(() => {
-        // Lets our server know that we have added a song.
-        ClientSocket.client.emit("addVideo", songObj);
-      });
-  }
-
   adjustQueue(songObj, upvotes, downvotes) {
     const dbObj = Object.assign(songObj, {});
     // The following three values should be sent to
@@ -165,7 +148,6 @@ class ConnectedApp extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
           <h1>Welcome to Raspiqueue</h1>
           <h2>You are logged in as {this.props.user.userName}</h2>
         </header>

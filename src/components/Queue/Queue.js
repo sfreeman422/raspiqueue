@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import fetch from "isomorphic-fetch";
+import ClientSocket from "../../ClientSocket";
 import SearchResults from "./Search/SearchResults";
 import RoomQueue from "./RoomQueue/RoomQueue";
 import MyQueue from "./MyQueue/MyQueue";
@@ -27,6 +28,7 @@ class ConnectedQueue extends Component {
     this.changeView = this.changeView.bind(this);
     this.search = this.search.bind(this);
     this.onSearchTermChange = this.onSearchTermChange.bind(this);
+    this.addToPlaylist = this.addToPlaylist.bind(this);
   }
 
   onSearchTermChange(event) {
@@ -39,6 +41,23 @@ class ConnectedQueue extends Component {
         chosenView: "queue"
       });
     }
+  }
+
+  addToPlaylist(songObj) {
+    fetch("/api/addSong", {
+      method: "post",
+      headers: {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(songObj)
+    })
+      .then(response => response.json())
+      .then(() => {
+        this.changeView("queue");
+        // Lets our server know that we have added a song.
+        ClientSocket.client.emit("addVideo", songObj);
+      });
   }
 
   search(e) {
@@ -102,7 +121,7 @@ class ConnectedQueue extends Component {
                 <SearchResults
                   searchResults={this.state.searchResults}
                   isSearching={this.state.isSearching}
-                  addToPlaylist={this.props.addToPlaylist}
+                  addToPlaylist={this.addToPlaylist}
                 />
               )}
             </tbody>
