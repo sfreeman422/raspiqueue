@@ -130,17 +130,6 @@ io.sockets.on("connection", async socket => {
     io.sockets.in(roomName).emit("downvoteIncremented");
   });
 
-  socket.on("timeSync", song => {
-    if (
-      song.time > LEADING_TIME &&
-      currentSong &&
-      song.linkId === currentSong.linkId
-    ) {
-      LEADING_TIME = song.time;
-    }
-    io.sockets.in(roomName).emit("syncWithServer", LEADING_TIME);
-  });
-
   socket.on("disconnect", () => {
     console.log(`User ${user.userName} disconnected!`);
     if (user.userId) {

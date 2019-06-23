@@ -3,11 +3,9 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import fetch from "isomorphic-fetch";
 import { connect } from "react-redux";
-import logo from "./logo.svg";
 import "./App.css";
 import Queue from "./components/Queue/Queue";
 import VideoContent from "./components/VideoContent/VideoContent";
-import Chat from "./components/Chat/Chat";
 import NoRoom from "./components/NoRoom";
 import * as actions from "./actions/actions";
 import ClientSocket from "./ClientSocket";
@@ -39,10 +37,9 @@ class ConnectedApp extends Component {
     this.currentSongTimeout = undefined;
     this.markPlayed = this.markPlayed.bind(this);
     this.adjustQueue = this.adjustQueue.bind(this);
-    this.addToPlaylist = this.addToPlaylist.bind(this);
     this.initializeApp = this.initializeApp.bind(this);
     this.updateQueue = this.updateQueue.bind(this);
-    this.sendMessage = this.sendMessage.bind(this);
+    this.removeFromQueue = this.removeFromQueue.bind(this);
   }
 
   componentDidMount() {
@@ -65,9 +62,6 @@ class ConnectedApp extends Component {
       ClientSocket.isConnected = true;
     });
     ClientSocket.client.on("queueChanged", () => this.updateQueue(roomName));
-    ClientSocket.client.on("messageReceived", message => {
-      this.props.updateMessages(message);
-    });
     this.updateQueue(roomName);
   }
 
@@ -137,30 +131,6 @@ class ConnectedApp extends Component {
       });
   }
 
-  addToPlaylist(songObj) {
-    fetch("/api/addSong", {
-      method: "post",
-      headers: {
-        Accept: "application/json, text/plain, */*",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(songObj)
-    })
-      .then(response => response.json())
-      .then(() => {
-        // Lets our server know that we have added a song.
-        ClientSocket.client.emit("addVideo", songObj);
-      });
-  }
-
-  sendMessage(message) {
-    ClientSocket.client.emit("message", {
-      userId: this.props.user.userId,
-      userName: this.props.user.userName,
-      message
-    });
-  }
-
   adjustQueue(songObj, upvotes, downvotes) {
     const dbObj = Object.assign(songObj, {});
     // The following three values should be sent to
@@ -174,16 +144,10 @@ class ConnectedApp extends Component {
   }
 
   render() {
-    console.log(this.props);
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1>
-            {this.props.roomName === ""
-              ? "Welcome to Music Stream"
-              : this.props.roomName}
-          </h1>
+          <h1>Welcome to Raspiqueue</h1>
           <h2>You are logged in as {this.props.user.userName}</h2>
         </header>
         {this.props.roomErr !== "" ? (
@@ -192,12 +156,11 @@ class ConnectedApp extends Component {
           </div>
         ) : (
           <div className="container">
+            <VideoContent adjustQueue={this.adjustQueue} showVisualizer />
             <Queue
               addToPlaylist={this.addToPlaylist}
               removeFromQueue={this.removeFromQueue}
             />
-            <VideoContent adjustQueue={this.adjustQueue} />
-            <Chat sendMessage={this.sendMessage} />
           </div>
         )}
       </div>
