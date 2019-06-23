@@ -3,7 +3,6 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import fetch from "isomorphic-fetch";
 import { connect } from "react-redux";
-import logo from "./logo.svg";
 import "./App.css";
 import Queue from "./components/Queue/Queue";
 import VideoContent from "./components/VideoContent/VideoContent";
@@ -157,7 +156,7 @@ class ConnectedApp extends Component {
           </div>
         ) : (
           <div className="container">
-            <VideoContent adjustQueue={this.adjustQueue} />
+            <VideoContent adjustQueue={this.adjustQueue} showVisualizer />
             <Queue
               addToPlaylist={this.addToPlaylist}
               removeFromQueue={this.removeFromQueue}

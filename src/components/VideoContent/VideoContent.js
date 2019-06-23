@@ -33,14 +33,6 @@ class ConnectedVideoContent extends Component {
     this.downvote = this.downvote.bind(this);
     this.cleanUp = this.cleanUp.bind(this);
     this.handleReady = this.handleReady.bind(this);
-    this.jumpToSeconds = this.jumpToSeconds.bind(this);
-    this.trackTimePoll = undefined;
-  }
-
-  componentWillUnmount() {
-    if (this.trackTimePoll) {
-      window.clearInterval(this.trackTimePoll);
-    }
   }
   // Increments the state of the upvotes for the currently playing song.
   upvote() {
@@ -78,10 +70,6 @@ class ConnectedVideoContent extends Component {
   handleReady(event) {
     this.setState({ player: event.target });
     console.debug("video is ready");
-  }
-
-  jumpToSeconds(seconds) {
-    this.state.player.seekTo(seconds, true);
   }
 
   render() {
