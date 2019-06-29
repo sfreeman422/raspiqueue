@@ -4,6 +4,7 @@
 .video-content-section {
   display: flex;
   justify-content: center;
+  margin-top: 1%;
 }
 
 iframe {
